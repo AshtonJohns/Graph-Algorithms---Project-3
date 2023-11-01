@@ -37,7 +37,7 @@ def main():
          'C': set(['A', 'B','E']),
          'D': set(['A']),
          'E': set(['A', 'C']),
-	 'H': set(['I', 'J']),
+	     'H': set(['I', 'J']),
          'I': set(['H', 'J']),
          'J': set(['H', 'I'])}
 
