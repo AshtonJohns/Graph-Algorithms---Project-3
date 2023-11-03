@@ -45,26 +45,63 @@ def generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=False
         plt.waitforbuttonpress()
         plt.clf()
         plt.close()
+    else:
+        plt.clf()
+        plt.close()
 
 def generateGraphSideBySideForComparison(G_dfs,G_bfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=True):
     #dfs
-    nx.draw(G_dfs,pos=pos,with_labels=True,node_color="green",node_size=1000,font_color="white",font_size=20,font_family="Times New Roman", font_weight="bold",width=3,edge_color="black")
+    tmpFile_dfs = "dfs" + tmpFile
+    nx.draw(G_dfs,pos=pos,with_labels=True,node_color="green",node_size=400,font_color="white",font_size=20,font_family="Times New Roman", font_weight="bold",width=3,edge_color="black")
     plt.margins(0.2)
     #save to figure
     figure = plt.gcf()
-    figure.set_size_inches(3,3)
+    figure.set_size_inches(2.5,2.5)
     #add image to docx file
-    plt.savefig(tmpFile)
+    plt.savefig(tmpFile_dfs)
     # add figure to document
-    addToDoc(document,task=task,tmpFile=tmpFile,addFigure=True)
+    addToDoc(document,task=task,tmpFile=tmpFile_dfs,addFigure=True)
+    plt.clf()
+    plt.close()
 
-    if wouldLikeToViewGraphs: # if the user wants to compare the figures
+    #bfs
+    tmpFile_bfs = "bfs" + tmpFile
+    nx.draw(G_bfs,pos=pos,with_labels=True,node_color="green",node_size=400,font_color="white",font_size=20,font_family="Times New Roman", font_weight="bold",width=3,edge_color="black")
+    plt.margins(0.2)
+    #save to figure
+    figure = plt.gcf()
+    figure.set_size_inches(2.5,2.5)
+    #add image to docx file
+    plt.savefig(tmpFile_bfs)
+    # add figure to document
+    addToDoc(document,task=task,tmpFile=tmpFile_bfs,addFigure=True)
+    plt.clf()
+    plt.close()
+
+
+    if wouldLikeToViewGraphs:
+        # Load the images
+        plt.clf()
+        plt.close()
+        image1 = plt.imread(tmpFile_dfs)
+        image2 = plt.imread(tmpFile_bfs)
+
+        # Create a figure and axes
+        fig, axes = plt.subplots(1, 2)
+
+        # Plot the images
+        axes[0].imshow(image1)
+        axes[1].imshow(image2)
+
+        # Show the figure
         plt.show(block=False) # display graph
         # inform user to press any key to move on
         print(pressAnyKey)
         plt.waitforbuttonpress()
         plt.clf()
         plt.close()
+    
+
 
 def viewGraphs():
     cont = True
@@ -96,9 +133,6 @@ def task1(document):
     question3 = "\n\nQUESTION:\nProvided that there is a path between two vertices u and v in the graph. If started from u, do DFS and BFS always find exactly the same path to v?\n\n"
     #create graph
     G=nx.Graph()
-    #list for storing results for DFS & BFS
-    dfs = []
-    bfs = []
 
     # undirected graph 1
     G.add_edge("A","B")
@@ -120,6 +154,9 @@ def task1(document):
     G.add_edge("K","L")
     G.add_edge("K","O")
     G.add_edge("L","P")
+
+    list_connected_components_1 = ['A','B','C','D','E','F','G','I','J','M','N']
+    list_connected_components_2 = ['H','K','L','O','P']
 
     pos={ # positions for nodes
         
@@ -156,6 +193,9 @@ def task1(document):
     view = viewGraphs()     
 
     for node in G.nodes():
+        #list for storing results for DFS & BFS
+        dfs = []
+        bfs = []
         #generate temp graph
         temp_G_dfs = nx.Graph()
         temp_G_bfs = nx.Graph()
@@ -173,9 +213,109 @@ def task1(document):
                 temp_G_bfs.add_edge(previous_node,current_node)
             previous_node = current_node
         #display both dfs & bfs figures for the user to see if they chose to view
-        # generateGraph(temp_G_dfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view)
-        # generateGraph(temp_G_bfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view)
         generateGraphSideBySideForComparison(temp_G_dfs,temp_G_bfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view)
+        # determine which list of connected components the node belongs within
+        if node in list_connected_components_1:
+            list_connected_components = list_connected_components_1
+        else:
+            list_connected_components = list_connected_components_2
+        # print message / doc message
+        message = "\nKnown connected components: " + str(list_connected_components) + \
+                  "\nStarting from node: " + node + "..." + \
+                  "\nConnected components determined with DFS: " + str(dfs) + \
+                  "\nConnected components determined with BFS: " + str(bfs) + \
+                  "\nDid DFS and BFS result in getting all the connected components?" + \
+                  "\n(DFS)" + str(dfs) + "=?" + str(list_connected_components) + ": "
+        # compare with list of connected components
+        dfs.sort()
+        result = list_connected_components.__eq__(dfs)
+        message += str(result)
+        message += "\n(BFS)" + str(bfs) + "=?" + str(list_connected_components) + ": "
+        bfs.sort()
+        result = list_connected_components.__eq__(bfs)
+        message += str(result)
+        print(message)
+        addToDoc(document,text=message,addparagraph=True)
+    
+    #
+    # ######################### --------------- QUESTION 2 ---------------#########################  #
+    # 
+    print(question2)
+    #insert page break
+    document.add_page_break()
+    # add question to document
+    addToDoc(document,text=question2,addparagraph=True)
+    message = "\nTo answer this question, we will loop over all nodes, and find all possible paths, using DFS and BFS\n\n"
+    print(message)
+    addToDoc(document,text=message,addparagraph=True)
+    document.add_page_break()
+    # Can both BFS and DFS determine if there is a path between two given nodes?
+    #ask if the user wants to compare the graphs, or just view it later in the file
+    view = viewGraphs() 
+
+    for node in G.nodes():
+        #list for storing results for DFS & BFS
+        dfs = []
+        bfs = []
+        #generate temp graph
+        temp_G_bfs = nx.Graph()
+        temp_list = []
+        for current_node in nx.dfs_tree(G,node):
+            temp_G_dfs = nx.Graph()
+            path = nx.Graph()
+            temp_list.append(current_node)
+            if len(temp_list) == 2:
+                #temp_list_without_brackets = ','.join(dfs)
+                dfs.append(temp_list)
+                temp_G_dfs.add_edges_from(dfs)
+                path.add_edge(temp_list[0],temp_list[1])
+                generateGraph(path,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view)
+                generateGraph(temp_G_dfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view)
+                temp_list = []
+            # if current_node == node:
+            #     dfs.append(current_node)
+            # if len(dfs) % 2 == 0:
+            #     dfs_without_brackets = ','.join(dfs)
+            #     edges = "("+dfs_without_brackets+")"
+            # if node not in dfs:
+            #     dfs.append((node,current_node))
+            #     temp_G_dfs.add_edges_from(dfs)
+            # else:
+            #     dfs.append(())
+            # temp_G_dfs.add_edge(previous_node,current_node)
+            # generateGraph(G,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view)
+            # # assign the previous node
+            #previous_node = current_node
+        # previous_node = '' #reset for bfs
+        # for current_node in nx.bfs_tree(G,node):
+            
+        #     previous_node = current_node
+
+        # # determine which list of connected components the node belongs within
+        # if node in list_connected_components_1:
+        #     list_connected_components = list_connected_components_1
+        # else:
+        #     list_connected_components = list_connected_components_2
+        # # print message / doc message
+        # message = "\nKnown connected components: " + str(list_connected_components) + \
+        #           "\nStarting from node: " + node + "..." + \
+        #           "\nConnected components determined with DFS: " + str(dfs) + \
+        #           "\nConnected components determined with BFS: " + str(bfs) + \
+        #           "\nDid DFS and BFS result in getting all the connected components?" + \
+        #           "\n(DFS)" + str(dfs) + "=?" + str(list_connected_components) + ": "
+        # # compare with list of connected components
+        # dfs.sort()
+        # result = list_connected_components.__eq__(dfs)
+        # message += str(result)
+        # message += "\n(BFS)" + str(bfs) + "=?" + str(list_connected_components) + ": "
+        # bfs.sort()
+        # result = list_connected_components.__eq__(bfs)
+        # message += str(result)
+        # print(message)
+        # addToDoc(document,text=message,addparagraph=True)
+
+         
+
     
     
 
@@ -195,7 +335,7 @@ def main():
     createResults = False
     while choice:
         #get input and ask which task to view
-        print("Please select the task to be viewed:\n1. DFS & BFS on undirected graph\n2. \n3. \n4. Quit/Save Results")
+        print("\nPlease select the task to be viewed:\n1. DFS & BFS on undirected graph\n2. \n3. \n4. Quit/Save Results")
         opt1 = input("\nChoice: ")
         if opt1.__eq__("1"): 
             task1(document=document)
@@ -224,7 +364,22 @@ def main():
         print("Creating document...")
         #document = Document(cwd + "Task Results.docx")
         filename = "Task Results.docx"
-        document.save(filename)
+        try_again = True
+        i = 1
+        #in case the file is opened, to prevent loss of runs, create another file
+        while try_again:
+            try:
+                document.save(filename)
+                try_again = False
+            except:
+                filename = "Task Results(" + str(i) +").docx"
+                i += 1
+        # remove png files
+        for file in os.listdir("."):
+            if file.endswith(".png"):
+                os.remove(file)
+        if i>1:
+            print("\n\nYou had a similar file name opened, so another is going to be created with (" + str(i-1)+") in the filename.")
         print("\n\nDocument can be found in the directory:\n\n" + cwd + "\\" + filename)
 
     print("\n\nThank you! Take care.")
