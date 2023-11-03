@@ -1,28 +1,26 @@
-import networkx as nx
 import matplotlib.pyplot as plt
-
-G1 = nx.balanced_tree(2,1)
-G2 = nx.balanced_tree(2,2)
-
-
-elarge1 =[(u,v) for (u,v,d) in G1.edges(data=True)]
-elarge2 =[(u,v) for (u,v,d) in G2.edges(data=True)]
+from mpl_toolkits.axes_grid1 import ImageGrid
+import numpy as np
 
 
-pos1=nx.spring_layout(G1)
-pos2=nx.spring_layout(G2)
 
+list_test = ["A","B"]
+list_test_1 = ["B","A"]
+list_test_1.sort()
+list_without_brackets = ','.join(list_test)
 
-for k,v in pos2.items():
-    # Shift the x values of every node by 10 to the right
-    v[0] = v[0] +10
+print(list_without_brackets)
+print(len(list_test))
+building_list = []
+if len(list_without_brackets) == 3:
+    print("True")
+    print(list_without_brackets)
+    test = "("+list_without_brackets+")"
+    building_list.append([list_without_brackets])
+    print(building_list)
 
-nx.draw_networkx_nodes(G1,pos1,node_size=30,node_color='b')
-nx.draw_networkx_edges(G1,pos1,edgelist=elarge1,width=1,style='solid')
+test = "("+list_without_brackets+")"
 
-
-nx.draw_networkx_nodes(G2,pos2,node_size=50)
-nx.draw_networkx_edges(G2,pos2,edgelist=elarge2,width=1)
-
-plt.show() # display
-plt.draw()
+# if len(list_test) % 2 == 0:
+#     list_without_brackets = ','.join(list_test)
+#     test = "("+list_without_brackets+")"
