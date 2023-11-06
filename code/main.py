@@ -19,7 +19,7 @@ def addToDoc(document,task="",text="",tmpFile="",addparagraph=False,addFigure=Fa
         document.add_heading(task + "graph",level=1)
         document.add_picture(tmpFile)
 
-def generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=False,wouldLikeToViewGraphs=True): #genereate all kinds of graphs
+def generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=False,wouldLikeToViewGraphs=True,node_size=1000,x=3,y=3): #genereate all kinds of graphs
     if mainIllustration:
         nx.draw(G,pos=pos,with_labels=True,node_color="red",node_size=3000,font_color="white",font_size=20,font_family="Times New Roman", font_weight="bold",width=5,edge_color="black")
         plt.margins(0.2)
@@ -28,11 +28,11 @@ def generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=False
         # add figure to document
         addToDoc(document,task=task,tmpFile=tmpFile,addFigure=True)
     else: # compare 
-        nx.draw(G,pos=pos,with_labels=True,node_color="green",node_size=1000,font_color="white",font_size=20,font_family="Times New Roman", font_weight="bold",width=3,edge_color="black")
+        nx.draw(G,with_labels=True,node_color="green",node_size=node_size,font_color="white",font_size=20,font_family="Times New Roman", font_weight="bold",width=3,edge_color="black")
         plt.margins(0.2)
         #save to figure
         figure = plt.gcf()
-        figure.set_size_inches(3,3)
+        figure.set_size_inches(x,y)
         #add image to docx file
         plt.savefig(tmpFile)
         # add figure to document
@@ -106,18 +106,25 @@ def generateGraphSideBySideForComparison(G_dfs,G_bfs,pos,tmpFile,document,task,p
 def viewGraphs():
     cont = True
     viewFile = False
+    answerQuestion = False
     while cont:
-        print("\n\nWould you like to see the graphs for comparison? (If not, SAVE THE FILE to view later)\n1. Yes\n2. No\n")
-        choice = input("Choice: ")
-        if choice.__eq__("1"):
-            viewFile = True
-            cont = False
-        elif choice.__eq__("2"):
-            print("\n\nOkay, you will not see the comparisons\n\n")
+        print("\n\nWould you like to answer this question? \n1. Yes\n2. No\n")
+        answerQChoice = input("Choice: ")
+        if answerQChoice.__eq__("1"):
+            answerQuestion = True
+            print("\nWould you like to see the graphs for comparison? (If not, SAVE THE FILE to view later)\n1. Yes\n2. No\n")
+            choice = input("Choice: ")
+            if choice.__eq__("1"):
+                viewFile = True
+                cont = False
+            elif choice.__eq__("2"):
+                print("\n\nOkay, you will not see the comparisons\n\n")
+                cont = False
+        elif answerQChoice.__eq__("2"):
             cont = False
         else:
             print("Please select a valid option")
-    return viewFile
+    return viewFile,answerQuestion
     
 
 def task1(document):
@@ -136,24 +143,48 @@ def task1(document):
 
     # undirected graph 1
     G.add_edge("A","B")
-    G.add_edge("A","F")
+    G.add_edge("B","C")
+    G.add_edge("C","D")
     G.add_edge("A","E")
+    G.add_edge("A","F")
     G.add_edge("B","F")
+    G.add_edge("C","G")
+    G.add_edge("D","G")
     G.add_edge("E","F")
     G.add_edge("E","I")
-    G.add_edge("I","J")
-    G.add_edge("I","M")
-    G.add_edge("M","N")
-    G.add_edge("B","C")
-    G.add_edge("J","G")
-    G.add_edge("C","D")
-    G.add_edge("C","G")
-    G.add_edge("G","D")
+    G.add_edge("F","I")
     G.add_edge("H","K")
     G.add_edge("H","L")
+    G.add_edge("G","J")
+    G.add_edge("I","J")
     G.add_edge("K","L")
+    G.add_edge("I","M")
     G.add_edge("K","O")
     G.add_edge("L","P")
+    G.add_edge("M","N")
+
+    G_undirected = G.to_undirected()
+    
+    
+    # G.add_edge("A","B")
+    # G.add_edge("A","F")
+    # G.add_edge("A","E")
+    # G.add_edge("B","F")
+    # G.add_edge("E","F")
+    # G.add_edge("E","I")
+    # G.add_edge("I","J")
+    # G.add_edge("I","M")
+    # G.add_edge("M","N")
+    # G.add_edge("B","C")
+    # G.add_edge("J","G")
+    # G.add_edge("C","D")
+    # G.add_edge("C","G")
+    # G.add_edge("G","D")
+    # G.add_edge("H","K")
+    # G.add_edge("H","L")
+    # G.add_edge("K","L")
+    # G.add_edge("K","O")
+    # G.add_edge("L","P")
 
     list_connected_components_1 = ['A','B','C','D','E','F','G','I','J','M','N']
     list_connected_components_2 = ['H','K','L','O','P']
@@ -178,9 +209,6 @@ def task1(document):
         "P":(7.5,2.5),
     }
 
-    # generate undirected graph 
-    generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True)
-
     #
     # ######################### --------------- QUESTION 1 ---------------#########################  #
     # 
@@ -188,54 +216,58 @@ def task1(document):
     # add question to document
     addToDoc(document,text=question1,addparagraph=True)
 
+    # generate undirected graph 
+    generateGraph(G_undirected,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True)
+
     # can DFS & BFS find all components of undirected graph?
     #ask if the user wants to compare the graphs, or just view it later in the file
-    view = viewGraphs()     
+    view,answerQuestion = viewGraphs()     
 
-    for node in G.nodes():
-        #list for storing results for DFS & BFS
-        dfs = []
-        bfs = []
-        #generate temp graph
-        temp_G_dfs = nx.Graph()
-        temp_G_bfs = nx.Graph()
-        previous_node = '' #stores previous node while doing dfs or bfs
-        for current_node in nx.dfs_tree(G,node):
-            dfs.append(current_node)
-            if previous_node != current_node and previous_node != '': #create the temp graph
-                temp_G_dfs.add_edge(previous_node,current_node)
-            # assign the previous node
-            previous_node = current_node
-        previous_node = '' #reset for bfs
-        for current_node in nx.bfs_tree(G,node):
-            bfs.append(current_node)
-            if previous_node != current_node and previous_node != '': #create the temp graph for bfs
-                temp_G_bfs.add_edge(previous_node,current_node)
-            previous_node = current_node
-        #display both dfs & bfs figures for the user to see if they chose to view
-        generateGraphSideBySideForComparison(temp_G_dfs,temp_G_bfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view)
-        # determine which list of connected components the node belongs within
-        if node in list_connected_components_1:
-            list_connected_components = list_connected_components_1
-        else:
-            list_connected_components = list_connected_components_2
-        # print message / doc message
-        message = "\nKnown connected components: " + str(list_connected_components) + \
-                  "\nStarting from node: " + node + "..." + \
-                  "\nConnected components determined with DFS: " + str(dfs) + \
-                  "\nConnected components determined with BFS: " + str(bfs) + \
-                  "\nDid DFS and BFS result in getting all the connected components?" + \
-                  "\n(DFS)" + str(dfs) + "=?" + str(list_connected_components) + ": "
-        # compare with list of connected components
-        dfs.sort()
-        result = list_connected_components.__eq__(dfs)
-        message += str(result)
-        message += "\n(BFS)" + str(bfs) + "=?" + str(list_connected_components) + ": "
-        bfs.sort()
-        result = list_connected_components.__eq__(bfs)
-        message += str(result)
-        print(message)
-        addToDoc(document,text=message,addparagraph=True)
+    if answerQuestion:
+        for node in G_undirected.nodes():
+            #list for storing results for DFS & BFS
+            dfs = []
+            bfs = []
+            #generate temp graph
+            temp_G_dfs = nx.Graph()
+            temp_G_bfs = nx.Graph()
+            previous_node = '' #stores previous node while doing dfs or bfs
+            for current_node in nx.dfs_tree(G_undirected,node):
+                dfs.append(current_node)
+                if previous_node != current_node and previous_node != '': #create the temp graph
+                    temp_G_dfs.add_edge(previous_node,current_node)
+                # assign the previous node
+                previous_node = current_node
+            previous_node = '' #reset for bfs
+            for current_node in nx.bfs_tree(G_undirected,node):
+                bfs.append(current_node)
+                if previous_node != current_node and previous_node != '': #create the temp graph for bfs
+                    temp_G_bfs.add_edge(previous_node,current_node)
+                previous_node = current_node
+            #display both dfs & bfs figures for the user to see if they chose to view
+            generateGraphSideBySideForComparison(temp_G_dfs,temp_G_bfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view)
+            # determine which list of connected components the node belongs within
+            if node in list_connected_components_1:
+                list_connected_components = list_connected_components_1
+            else:
+                list_connected_components = list_connected_components_2
+            # print message / doc message
+            message = "\nKnown connected components: " + str(list_connected_components) + \
+                    "\nStarting from node: " + node + "..." + \
+                    "\nConnected components determined with DFS: " + str(dfs) + \
+                    "\nConnected components determined with BFS: " + str(bfs) + \
+                    "\nDid DFS and BFS result in getting all the connected components?" + \
+                    "\n(DFS)" + str(dfs) + "=?" + str(list_connected_components) + ": "
+            # compare with list of connected components
+            dfs.sort()
+            result = list_connected_components.__eq__(dfs)
+            message += str(result)
+            message += "\n(BFS)" + str(bfs) + "=?" + str(list_connected_components) + ": "
+            bfs.sort()
+            result = list_connected_components.__eq__(bfs)
+            message += str(result)
+            print(message)
+            addToDoc(document,text=message,addparagraph=True)
     
     #
     # ######################### --------------- QUESTION 2 ---------------#########################  #
@@ -248,71 +280,82 @@ def task1(document):
     message = "\nTo answer this question, we will loop over all nodes, and find all possible paths, using DFS and BFS\n\n"
     print(message)
     addToDoc(document,text=message,addparagraph=True)
+    # generate undirected graph 
+    generateGraph(G_undirected,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True)
     document.add_page_break()
     # Can both BFS and DFS determine if there is a path between two given nodes?
     #ask if the user wants to compare the graphs, or just view it later in the file
-    view = viewGraphs() 
+    view,answerQuestion = viewGraphs() 
 
-    for node in G.nodes():
-        #list for storing results for DFS & BFS
-        dfs = []
-        bfs = []
-        #generate temp graph
-        temp_G_bfs = nx.Graph()
-        temp_list = []
-        for current_node in nx.dfs_tree(G,node):
-            temp_G_dfs = nx.Graph()
-            path = nx.Graph()
-            temp_list.append(current_node)
-            if len(temp_list) == 2:
-                #temp_list_without_brackets = ','.join(dfs)
-                dfs.append(temp_list)
-                temp_G_dfs.add_edges_from(dfs)
-                path.add_edge(temp_list[0],temp_list[1])
-                generateGraph(path,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view)
-                generateGraph(temp_G_dfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view)
-                temp_list = []
-            # if current_node == node:
-            #     dfs.append(current_node)
-            # if len(dfs) % 2 == 0:
-            #     dfs_without_brackets = ','.join(dfs)
-            #     edges = "("+dfs_without_brackets+")"
-            # if node not in dfs:
-            #     dfs.append((node,current_node))
-            #     temp_G_dfs.add_edges_from(dfs)
-            # else:
-            #     dfs.append(())
-            # temp_G_dfs.add_edge(previous_node,current_node)
-            # generateGraph(G,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view)
-            # # assign the previous node
-            #previous_node = current_node
-        # previous_node = '' #reset for bfs
-        # for current_node in nx.bfs_tree(G,node):
+    if answerQuestion:
+        for node in G_undirected.nodes():
+            #list for storing results for DFS & BFS
+            dfs = [] #stores all edges for DFS
+            bfs = [] #stores all edges for BFS
+            temp_list = [] #stores an edge
+            # message1
+            message1 = "\n\nDFS\nStart node: " + node
+            print(message1)
+            addToDoc(document,text=message1,addparagraph=True)
+            for current_node in nx.dfs_tree(G_undirected,node):
+                #generate graph containing all discovered edges
+                temp_G_dfs = nx.Graph()
+                #generate graph containing newly discovered edge
+                path = nx.Graph()
+                #add add nodes to create a new edge
+                temp_list.append(current_node) 
+                if len(temp_list) == 2: #once two nodes are connected...
+                    dfs.extend(temp_list)
+                    # add path from previous edge end node to start node of newly discovered edge
+                    if len(dfs) > 2:
+                        dfs.insert(dfs.index(dfs[-2]),dfs[-3])
+                        dfs.insert(dfs.index(dfs[-2]),dfs[-2])
+                    #convert to 2d
+                    dfs_to_2d = np.array(dfs).reshape((len(dfs))//2,2) 
+                    # create the total path for DFS
+                    temp_G_dfs.add_edges_from(dfs_to_2d)
+                    # create the newly discovered edge 
+                    path.add_edge(temp_list[0],temp_list[1])
+                    generateGraph(path,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view,x=2,y=2,node_size=500)
+                    generateGraph(temp_G_dfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view,x=2,y=2,node_size=500)
+                    # message2
+                    message2 = "\nEnd node: " + current_node + "\nDFS found a path from start node " + node + " and end node " + current_node + "\nNew Edge: " + str(temp_list) + "\nTotal path: \n" + str(dfs_to_2d.flatten()) 
+                    print(message2)
+                    addToDoc(document,text=message2,addparagraph=True)
+                    document.add_page_break()
+                    temp_list = [] #clean edge
+            # message3
+            message3 = "\n\nBFS\nStart node: " + node
+            print(message3)
+            addToDoc(document,text=message3,addparagraph=True)
+            for current_node in nx.bfs_tree(G_undirected,node):
+                #generate graph containing all discovered edges
+                temp_G_bfs = nx.Graph()
+                #generate graph containing newly discovered edge
+                path = nx.Graph()
+                #add add nodes to create a new edge
+                temp_list.append(current_node) 
+                if len(temp_list) == 2: #once two nodes are connected...
+                    bfs.extend(temp_list)
+                    # add path from previous edge end node to start node of newly discovered edge
+                    if len(bfs) > 2:
+                        bfs.insert(bfs.index(bfs[-2]),bfs[-3])
+                        bfs.insert(bfs.index(bfs[-2]),bfs[-2])
+                    #convert to 2d
+                    bfs_to_2d = np.array(bfs).reshape((len(bfs))//2,2) 
+                    # create the total path for bfs
+                    temp_G_bfs.add_edges_from(bfs_to_2d)
+                    # create the newly discovered edge 
+                    path.add_edge(temp_list[0],temp_list[1])
+                    generateGraph(path,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view,x=2,y=2,node_size=500)
+                    generateGraph(temp_G_bfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view,x=2,y=2,node_size=500)
+                    # message4
+                    message4 = "\nEnd node: " + current_node + "\nBFS found a path from start node " + node + " and end node " + current_node + "\nNew Edge: " + str(temp_list) + "\nTotal path: \n" + str(bfs_to_2d.flatten()) 
+                    print(message4)
+                    addToDoc(document,text=message4,addparagraph=True)
+                    document.add_page_break()
+                    temp_list = []
             
-        #     previous_node = current_node
-
-        # # determine which list of connected components the node belongs within
-        # if node in list_connected_components_1:
-        #     list_connected_components = list_connected_components_1
-        # else:
-        #     list_connected_components = list_connected_components_2
-        # # print message / doc message
-        # message = "\nKnown connected components: " + str(list_connected_components) + \
-        #           "\nStarting from node: " + node + "..." + \
-        #           "\nConnected components determined with DFS: " + str(dfs) + \
-        #           "\nConnected components determined with BFS: " + str(bfs) + \
-        #           "\nDid DFS and BFS result in getting all the connected components?" + \
-        #           "\n(DFS)" + str(dfs) + "=?" + str(list_connected_components) + ": "
-        # # compare with list of connected components
-        # dfs.sort()
-        # result = list_connected_components.__eq__(dfs)
-        # message += str(result)
-        # message += "\n(BFS)" + str(bfs) + "=?" + str(list_connected_components) + ": "
-        # bfs.sort()
-        # result = list_connected_components.__eq__(bfs)
-        # message += str(result)
-        # print(message)
-        # addToDoc(document,text=message,addparagraph=True)
 
          
 
