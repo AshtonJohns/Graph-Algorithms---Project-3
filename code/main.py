@@ -19,9 +19,12 @@ def addToDoc(document,task="",text="",tmpFile="",addparagraph=False,addFigure=Fa
         document.add_heading(task + "graph",level=1)
         document.add_picture(tmpFile)
 
-def generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=False,wouldLikeToViewGraphs=True,node_size=1000,x=3,y=3): #genereate all kinds of graphs
+def generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=False,wouldLikeToViewGraphs=True,node_size=1000,x=3,y=3,is_directed=False): #genereate all kinds of graphs
     if mainIllustration:
-        nx.draw(G,pos=pos,with_labels=True,node_color="red",node_size=3000,font_color="white",font_size=20,font_family="Times New Roman", font_weight="bold",width=5,edge_color="black")
+        if not is_directed:
+            nx.draw(G,pos=pos,with_labels=True,node_color="red",node_size=3000,font_color="white",font_size=20,font_family="Times New Roman", font_weight="bold",width=5,edge_color="black")
+        else:
+            nx.draw_networkx(G,pos=pos,with_labels=True)
         plt.margins(0.2)
         #add image to docx file
         plt.savefig(tmpFile)
@@ -580,6 +583,12 @@ def task1(document):
     #                 temp_list = []
             
 def task2(document):
+    #current task
+    task = "Task 1 "
+    #temp file for graphs
+    tmpFile = "graph.png"
+    # move on message
+    pressAnyKey = "\n\n" + task + "graph\n\n" + "\n---PRESS ANY KEY TO MOVE ON!---\n\n"
     # questions
     question1 = "\n\nQUESTION:\nUse an application to find the strongly connected components of the digraph.\n\n"
     question2 = "\n\nQUESTION:\nDraw the digraph as a 'meta graph' of its strongly connected components in the report.\n\n"
@@ -592,6 +601,7 @@ def task2(document):
                        (3,5),
                        (2,1),
                        (4,1),
+                       (4,2),
                        (4,12),
                        (5,6),
                        (5,8),
@@ -610,32 +620,40 @@ def task2(document):
     G.add_edges_from(task2graphedges)
     # digraph 1
 
-    #get connected components
-    conn_comp = getConnectedComponents(G)
+    # #get connected components
+    # conn_comp = getConnectedComponents(G)
 
     pos={ # positions for nodes
         
-        "A":(0,10),
-        "B":(2.5,10),
-        "C":(5,10),
-        "D":(7.5,10),
-        "E":(0,7.5),
-        "F":(2.5,7.5),
-        "G":(5,7.5),
-        "H":(7.5,7.5),
-        "I":(0,5),
-        "J":(2.5,5),
-        "K":(5,5),
-        "L":(7.5,5),
-        "M":(0,2.5),
-        "N":(2.5,2.5),
-        "O":(5,2.5),
-        "P":(7.5,2.5),
+        1:(0,10),
+        3:(2.5,10),
+        5:(5,10),
+        6:(7.5,10),
+        4:(0,7.5),
+        2:(2.5,7.5),
+        9:(5,7.5),
+        8:(6.2,7.5),
+        7:(9,7.5),
+        12:(2.5,5),
+        11:(5,5),
+        10:(7.5,5),
     }
 
     #
     # ######################### --------------- QUESTION 1 ---------------#########################  #
     # 
+    print(question1)
+    # add question to document
+    addToDoc(document,text=question1,addparagraph=True)
+
+    # generate undirected graph 
+    generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True,is_directed=True)
+
+    document.add_page_break()
+
+    # Use an application to find the strongly connected components of the digraph
+    #ask if the user wants to compare the graphs, or just view it later in the file
+    view,answerQuestion = viewGraphs()
          
 
     
