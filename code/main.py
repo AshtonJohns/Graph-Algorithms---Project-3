@@ -28,7 +28,7 @@ def generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=False
         # add figure to document
         addToDoc(document,task=task,tmpFile=tmpFile,addFigure=True)
     else: # compare 
-        nx.draw(G,with_labels=True,node_color="green",node_size=node_size,font_color="white",font_size=20,font_family="Times New Roman", font_weight="bold",width=3,edge_color="black")
+        nx.draw(G,pos=pos,with_labels=True,node_color="green",node_size=node_size,font_color="white",font_size=10,font_family="Times New Roman", font_weight="bold",width=2,edge_color="black")
         plt.margins(0.2)
         #save to figure
         figure = plt.gcf()
@@ -41,8 +41,8 @@ def generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=False
     if wouldLikeToViewGraphs: # if the user wants to compare the figures
         plt.show(block=False) # display graph
         # inform user to press any key to move on
-        print(pressAnyKey)
-        plt.waitforbuttonpress()
+        #print(pressAnyKey)
+        input("\n---Press Enter to continue---")
         plt.clf()
         plt.close()
     else:
@@ -96,8 +96,8 @@ def generateGraphSideBySideForComparison(G_dfs,G_bfs,pos,tmpFile,document,task,p
         # Show the figure
         plt.show(block=False) # display graph
         # inform user to press any key to move on
-        print(pressAnyKey)
-        plt.waitforbuttonpress()
+        #print(pressAnyKey)
+        input("\n---Press Enter to continue---")
         plt.clf()
         plt.close()
     
@@ -140,52 +140,74 @@ def task1(document):
     question3 = "\n\nQUESTION:\nProvided that there is a path between two vertices u and v in the graph. If started from u, do DFS and BFS always find exactly the same path to v?\n\n"
     #create graph
     G=nx.Graph()
-
     # undirected graph 1
-    G.add_edge("A","B")
-    G.add_edge("B","C")
-    G.add_edge("C","D")
-    G.add_edge("A","E")
-    G.add_edge("A","F")
-    G.add_edge("B","F")
-    G.add_edge("C","G")
-    G.add_edge("D","G")
-    G.add_edge("E","F")
-    G.add_edge("E","I")
-    G.add_edge("F","I")
-    G.add_edge("H","K")
-    G.add_edge("H","L")
-    G.add_edge("G","J")
-    G.add_edge("I","J")
-    G.add_edge("K","L")
-    G.add_edge("I","M")
-    G.add_edge("K","O")
-    G.add_edge("L","P")
-    G.add_edge("M","N")
+    # G_undirected_edges = [["A","B"],
+    #                       ["B","C"],
+    #                       ["C","D"],
+    #                       ["A","E"],
+    #                       ["A","F"],
+    #                       ["B","F"],
+    #                       ["C","G"],
+    #                       ["D","G"],
+    #                       ["E","F"],
+    #                       ["E","I"],
+    #                       ["F","I"],
+    #                       ["H","K"],
+    #                       ["H","L"],
+    #                       ["G","J"],
+    #                       ["I","J"],
+    #                       ["K","L"],
+    #                       ["I","M"],
+    #                       ["K","O"],
+    #                       ["L","P"],
+    #                       ["M","N"]
+    #                      ]
+
+    task1graphedges = [("A", "B"),
+                       ("A", "F"),
+                       ("A", "E"),
+                        ("B", "F"),
+                        ("B", "C"),
+                        ("C", "D"),
+                        ("C", "G"),
+                        ("D", "G"),
+                        ("G", "J"),
+                        ("E", "F"),
+                        ("E", "I"),
+                        ("F", "I"),
+                        ("I", "J"),
+                        ("I", "M"),
+                        ("M", "N"),
+                        ("H", "K"),
+                        ("K", "O"),
+                        ("K", "L"),
+                        ("L", "H"),
+                        ("L", "P")]
+    #add edges
+    G.add_edges_from(task1graphedges)
+    # G.add_edge("A","B")
+    # G.add_edge("B","C")
+    # G.add_edge("C","D")
+    # G.add_edge("A","E")
+    # G.add_edge("A","F")
+    # G.add_edge("B","F")
+    # G.add_edge("C","G")
+    # G.add_edge("D","G")
+    # G.add_edge("E","F")
+    # G.add_edge("E","I")
+    # G.add_edge("F","I")
+    # G.add_edge("H","K")
+    # G.add_edge("H","L")
+    # G.add_edge("G","J")
+    # G.add_edge("I","J")
+    # G.add_edge("K","L")
+    # G.add_edge("I","M")
+    # G.add_edge("K","O")
+    # G.add_edge("L","P")
+    # G.add_edge("M","N")
 
     G_undirected = G.to_undirected()
     
-    
-    # G.add_edge("A","B")
-    # G.add_edge("A","F")
-    # G.add_edge("A","E")
-    # G.add_edge("B","F")
-    # G.add_edge("E","F")
-    # G.add_edge("E","I")
-    # G.add_edge("I","J")
-    # G.add_edge("I","M")
-    # G.add_edge("M","N")
-    # G.add_edge("B","C")
-    # G.add_edge("J","G")
-    # G.add_edge("C","D")
-    # G.add_edge("C","G")
-    # G.add_edge("G","D")
-    # G.add_edge("H","K")
-    # G.add_edge("H","L")
-    # G.add_edge("K","L")
-    # G.add_edge("K","O")
-    # G.add_edge("L","P")
-
     list_connected_components_1 = ['A','B','C','D','E','F','G','I','J','M','N']
     list_connected_components_2 = ['H','K','L','O','P']
 
@@ -286,75 +308,155 @@ def task1(document):
     # Can both BFS and DFS determine if there is a path between two given nodes?
     #ask if the user wants to compare the graphs, or just view it later in the file
     view,answerQuestion = viewGraphs() 
+    for node in G_undirected.nodes():
+        # message1
+        message1 = "\n\nDFS\nStart node: " + node
+        print(message1)
+        addToDoc(document,text=message1,addparagraph=True)
+        
+        for current_node in nx.dfs_tree(G_undirected, node):
+            if current_node != node: # A == A, B == B, etc (starting nodes)
+                # message2
+                message2 = "\nDFS found a path from start node " + node + " and end node " + current_node  
+                print(message2)
+                addToDoc(document,text=message2,addparagraph=True)
+        # message3
+        message3 = "\n\nBFS\nStart node: " + node
+        print(message3)
+        addToDoc(document,text=message3,addparagraph=True)
+        for current_node in nx.bfs_tree(G_undirected, node):
+            if current_node != node:
+                # message4
+                message4 = "\nBFS found a path from start node " + node + " and end node " + current_node  
+                print(message4)
+                addToDoc(document,text=message4,addparagraph=True)
+        document.add_page_break()
 
-    if answerQuestion:
-        for node in G_undirected.nodes():
-            #list for storing results for DFS & BFS
-            dfs = [] #stores all edges for DFS
-            bfs = [] #stores all edges for BFS
-            temp_list = [] #stores an edge
-            # message1
-            message1 = "\n\nDFS\nStart node: " + node
-            print(message1)
-            addToDoc(document,text=message1,addparagraph=True)
-            for current_node in nx.dfs_tree(G_undirected,node):
-                #generate graph containing all discovered edges
-                temp_G_dfs = nx.Graph()
-                #generate graph containing newly discovered edge
-                path = nx.Graph()
-                #add add nodes to create a new edge
-                temp_list.append(current_node) 
-                if len(temp_list) == 2: #once two nodes are connected...
-                    dfs.extend(temp_list)
-                    # add path from previous edge end node to start node of newly discovered edge
-                    if len(dfs) > 2:
-                        dfs.insert(dfs.index(dfs[-2]),dfs[-3])
-                        dfs.insert(dfs.index(dfs[-2]),dfs[-2])
-                    #convert to 2d
-                    dfs_to_2d = np.array(dfs).reshape((len(dfs))//2,2) 
-                    # create the total path for DFS
-                    temp_G_dfs.add_edges_from(dfs_to_2d)
-                    # create the newly discovered edge 
-                    path.add_edge(temp_list[0],temp_list[1])
-                    generateGraph(path,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view,x=2,y=2,node_size=500)
-                    generateGraph(temp_G_dfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view,x=2,y=2,node_size=500)
-                    # message2
-                    message2 = "\nEnd node: " + current_node + "\nDFS found a path from start node " + node + " and end node " + current_node + "\nNew Edge: " + str(temp_list) + "\nTotal path: \n" + str(dfs_to_2d.flatten()) 
-                    print(message2)
-                    addToDoc(document,text=message2,addparagraph=True)
-                    document.add_page_break()
-                    temp_list = [] #clean edge
-            # message3
-            message3 = "\n\nBFS\nStart node: " + node
-            print(message3)
-            addToDoc(document,text=message3,addparagraph=True)
-            for current_node in nx.bfs_tree(G_undirected,node):
-                #generate graph containing all discovered edges
-                temp_G_bfs = nx.Graph()
-                #generate graph containing newly discovered edge
-                path = nx.Graph()
-                #add add nodes to create a new edge
-                temp_list.append(current_node) 
-                if len(temp_list) == 2: #once two nodes are connected...
-                    bfs.extend(temp_list)
-                    # add path from previous edge end node to start node of newly discovered edge
-                    if len(bfs) > 2:
-                        bfs.insert(bfs.index(bfs[-2]),bfs[-3])
-                        bfs.insert(bfs.index(bfs[-2]),bfs[-2])
-                    #convert to 2d
-                    bfs_to_2d = np.array(bfs).reshape((len(bfs))//2,2) 
-                    # create the total path for bfs
-                    temp_G_bfs.add_edges_from(bfs_to_2d)
-                    # create the newly discovered edge 
-                    path.add_edge(temp_list[0],temp_list[1])
-                    generateGraph(path,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view,x=2,y=2,node_size=500)
-                    generateGraph(temp_G_bfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view,x=2,y=2,node_size=500)
-                    # message4
-                    message4 = "\nEnd node: " + current_node + "\nBFS found a path from start node " + node + " and end node " + current_node + "\nNew Edge: " + str(temp_list) + "\nTotal path: \n" + str(bfs_to_2d.flatten()) 
-                    print(message4)
-                    addToDoc(document,text=message4,addparagraph=True)
-                    document.add_page_break()
-                    temp_list = []
+    # if answerQuestion:
+    #     for node in G_undirected.nodes():
+    #         dfs_for_undirected = []
+    #         # message1
+    #         message1 = "\n\nDFS\nStart node: " + node
+    #         print(message1)
+    #         addToDoc(document,text=message1,addparagraph=True)
+    #         for current_node in nx.dfs_tree(G_undirected,node):
+    #             test_list.append(current_node)
+    #             dfs_for_undirected.append(current_node)
+    #             if current_node != node: # A == A, B == B, etc (starting nodes)
+    #                 dfs_for_undirected.append(current_node)
+    #         dfs_for_undirected.pop()
+    #         dfs_for_undirected_to_path = []
+    #         for x in range(len(dfs_for_undirected)-1):
+    #             temp_list = []
+    #             if x % 2 == 0:
+    #                 temp_list.append([dfs_for_undirected[x],dfs_for_undirected[x+1]])
+    #                 path = nx.Graph()
+    #                 path.add_edges_from(temp_list)
+
+    #                 dfs_for_undirected_to_path.append([dfs_for_undirected[x],dfs_for_undirected[x+1]])
+    #                 #convert to 2d
+    #                 #dfs_to_2d = np.array(dfs_for_undirected_to_path).reshape((len(dfs_for_undirected_to_path))//2,2)
+    #                 temp_G_dfs = nx.Graph()
+    #                 temp_G_dfs.add_edges_from(dfs_for_undirected_to_path)
+
+    #                 generateGraph(path,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view,x=2,y=2,node_size=300)
+    #                 generateGraph(temp_G_dfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view,x=2,y=2,node_size=500)
+    #                 # message2
+    #                 message2 = "\nEnd node: " + dfs_for_undirected[x+1] + "\nDFS found a path from start node " + node + " and end node " + dfs_for_undirected[x+1] + "\nNew Edge: " + str(temp_list) + "\nTotal path: \n" + str(dfs_for_undirected_to_path) 
+    #                 print(message2)
+    #                 addToDoc(document,text=message2,addparagraph=True)
+    #                 document.add_page_break() 
+
+    #
+    # ######################### --------------- QUESTION 3 ---------------#########################  #
+    # 
+    print(question3)
+    #insert page break
+    document.add_page_break()
+    # add question to document
+    addToDoc(document,text=question3,addparagraph=True)
+    message = "\nTo answer this question, we will loop over all nodes, and find all possible paths, using DFS and BFS\n\n"
+    print(message)
+    addToDoc(document,text=message,addparagraph=True)
+    # generate undirected graph 
+    generateGraph(G_undirected,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True)
+    document.add_page_break()
+    # Provided that there is a path between two vertices u and v in the graph. If started from u, do DFS and BFS always find exactly the same path to v?
+    #ask if the user wants to compare the graphs, or just view it later in the file
+    view,answerQuestion = viewGraphs() 
+
+    if answerQuestion:                
+
+
+
+    # if answerQuestion:
+    #     for node in G_undirected.nodes():
+    #         #list for storing results for DFS & BFS
+    #         dfs = [] #stores all edges for DFS
+    #         bfs = [] #stores all edges for BFS
+    #         temp_list = [] #stores an edge
+    #         # message1
+    #         message1 = "\n\nDFS\nStart node: " + node
+    #         print(message1)
+    #         addToDoc(document,text=message1,addparagraph=True)
+    #         for current_node in nx.dfs_tree(G_undirected,node):
+    #             #generate graph containing all discovered edges
+    #             temp_G_dfs = nx.Graph()
+    #             #generate graph containing newly discovered edge
+    #             path = nx.Graph()
+    #             #add add nodes to create a new edge
+    #             temp_list.append(current_node) 
+    #             if len(temp_list) == 2: #once two nodes are connected...
+    #                 dfs.extend(temp_list)
+    #                 # add path from previous edge end node to start node of newly discovered edge
+    #                 if len(dfs) > 2:
+    #                     dfs.insert(dfs.index(dfs[-2]),dfs[-3])
+    #                     dfs.insert(dfs.index(dfs[-2]),dfs[-2])
+    #                 #convert to 2d
+    #                 dfs_to_2d = np.array(dfs).reshape((len(dfs))//2,2) 
+    #                 # create the total path for DFS
+    #                 temp_G_dfs.add_edges_from(dfs_to_2d)
+    #                 # create the newly discovered edge 
+    #                 path.add_edge(temp_list[0],temp_list[1])
+    #                 generateGraph(path,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view,x=2,y=2,node_size=500)
+    #                 generateGraph(temp_G_dfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view,x=2,y=2,node_size=500)
+    #                 # message2
+    #                 message2 = "\nEnd node: " + current_node + "\nDFS found a path from start node " + node + " and end node " + current_node + "\nNew Edge: " + str(temp_list) + "\nTotal path: \n" + str(dfs_to_2d.flatten()) 
+    #                 print(message2)
+    #                 addToDoc(document,text=message2,addparagraph=True)
+    #                 document.add_page_break()
+    #                 temp_list = [] #clean edge
+    #         # message3
+    #         message3 = "\n\nBFS\nStart node: " + node
+    #         print(message3)
+    #         addToDoc(document,text=message3,addparagraph=True)
+    #         for current_node in nx.bfs_tree(G_undirected,node):
+    #             #generate graph containing all discovered edges
+    #             temp_G_bfs = nx.Graph()
+    #             #generate graph containing newly discovered edge
+    #             path = nx.Graph()
+    #             #add add nodes to create a new edge
+    #             temp_list.append(current_node) 
+    #             if len(temp_list) == 2: #once two nodes are connected...
+    #                 bfs.extend(temp_list)
+    #                 # add path from previous edge end node to start node of newly discovered edge
+    #                 if len(bfs) > 2:
+    #                     bfs.insert(bfs.index(bfs[-2]),bfs[-3])
+    #                     bfs.insert(bfs.index(bfs[-2]),bfs[-2])
+    #                 #convert to 2d
+    #                 bfs_to_2d = np.array(bfs).reshape((len(bfs))//2,2) 
+    #                 # create the total path for bfs
+    #                 temp_G_bfs.add_edges_from(bfs_to_2d)
+    #                 # create the newly discovered edge 
+    #                 path.add_edge(temp_list[0],temp_list[1])
+    #                 generateGraph(path,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view,x=2,y=2,node_size=500)
+    #                 generateGraph(temp_G_bfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view,x=2,y=2,node_size=500)
+    #                 # message4
+    #                 message4 = "\nEnd node: " + current_node + "\nBFS found a path from start node " + node + " and end node " + current_node + "\nNew Edge: " + str(temp_list) + "\nTotal path: \n" + str(bfs_to_2d.flatten()) 
+    #                 print(message4)
+    #                 addToDoc(document,text=message4,addparagraph=True)
+    #                 document.add_page_break()
+    #                 temp_list = []
             
 
          
