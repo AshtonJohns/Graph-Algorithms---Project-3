@@ -112,19 +112,29 @@ def viewGraphs():
         answerQChoice = input("Choice: ")
         if answerQChoice.__eq__("1"):
             answerQuestion = True
-            print("\nWould you like to see the graphs for comparison? (If not, SAVE THE FILE to view later)\n1. Yes\n2. No\n")
-            choice = input("Choice: ")
-            if choice.__eq__("1"):
-                viewFile = True
-                cont = False
-            elif choice.__eq__("2"):
-                print("\n\nOkay, you will not see the comparisons\n\n")
-                cont = False
+            cont = False
+            # print("\nWould you like to see the graphs for comparison? (If not, SAVE THE FILE to view later)\n1. Yes\n2. No\n")
+            # choice = input("Choice: ")
+            # if choice.__eq__("1"):
+            #     viewFile = True
+            #     cont = False
+            # elif choice.__eq__("2"):
+            #     print("\n\nOkay, you will not see the comparisons\n\n")
+            #     cont = False
         elif answerQChoice.__eq__("2"):
             cont = False
         else:
             print("Please select a valid option")
     return viewFile,answerQuestion
+
+def getConnectedComponents(G):
+    conn_comp_gen = nx.connected_components(G)
+    #list comprehension 
+    temp_list = list(conn_comp_gen)
+    conn_comp = []
+    for connected_components_list in temp_list:
+        conn_comp.append(list(connected_components_list))
+    return conn_comp
     
 
 def task1(document):
@@ -207,9 +217,12 @@ def task1(document):
     # G.add_edge("M","N")
 
     G_undirected = G.to_undirected()
+
+    #get connected components
+    conn_comp = getConnectedComponents(G)
     
-    list_connected_components_1 = ['A','B','C','D','E','F','G','I','J','M','N']
-    list_connected_components_2 = ['H','K','L','O','P']
+    # list_connected_components_1 = ['A','B','C','D','E','F','G','I','J','M','N']
+    # list_connected_components_2 = ['H','K','L','O','P']
 
     pos={ # positions for nodes
         
@@ -241,6 +254,8 @@ def task1(document):
     # generate undirected graph 
     generateGraph(G_undirected,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True)
 
+    document.add_page_break()
+
     # can DFS & BFS find all components of undirected graph?
     #ask if the user wants to compare the graphs, or just view it later in the file
     view,answerQuestion = viewGraphs()     
@@ -250,46 +265,79 @@ def task1(document):
             #list for storing results for DFS & BFS
             dfs = []
             bfs = []
-            #generate temp graph
-            temp_G_dfs = nx.Graph()
-            temp_G_bfs = nx.Graph()
-            previous_node = '' #stores previous node while doing dfs or bfs
             for current_node in nx.dfs_tree(G_undirected,node):
                 dfs.append(current_node)
-                if previous_node != current_node and previous_node != '': #create the temp graph
-                    temp_G_dfs.add_edge(previous_node,current_node)
-                # assign the previous node
-                previous_node = current_node
-            previous_node = '' #reset for bfs
             for current_node in nx.bfs_tree(G_undirected,node):
                 bfs.append(current_node)
-                if previous_node != current_node and previous_node != '': #create the temp graph for bfs
-                    temp_G_bfs.add_edge(previous_node,current_node)
-                previous_node = current_node
-            #display both dfs & bfs figures for the user to see if they chose to view
-            generateGraphSideBySideForComparison(temp_G_dfs,temp_G_bfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view)
-            # determine which list of connected components the node belongs within
-            if node in list_connected_components_1:
-                list_connected_components = list_connected_components_1
-            else:
-                list_connected_components = list_connected_components_2
-            # print message / doc message
-            message = "\nKnown connected components: " + str(list_connected_components) + \
-                    "\nStarting from node: " + node + "..." + \
-                    "\nConnected components determined with DFS: " + str(dfs) + \
-                    "\nConnected components determined with BFS: " + str(bfs) + \
-                    "\nDid DFS and BFS result in getting all the connected components?" + \
-                    "\n(DFS)" + str(dfs) + "=?" + str(list_connected_components) + ": "
-            # compare with list of connected components
-            dfs.sort()
-            result = list_connected_components.__eq__(dfs)
-            message += str(result)
-            message += "\n(BFS)" + str(bfs) + "=?" + str(list_connected_components) + ": "
-            bfs.sort()
-            result = list_connected_components.__eq__(bfs)
-            message += str(result)
-            print(message)
-            addToDoc(document,text=message,addparagraph=True)
+
+            #determine which connected components to look at 
+            current_conn_comp = []
+            for known_conn_comp_part in conn_comp:
+                if node in known_conn_comp_part:
+                    current_conn_comp = known_conn_comp_part
+            # message1
+            message1 = "\n\nDFS\nStart node: " + node + "\nConnected Components found by DFS from the start node: \n" + str(dfs) + "\nKnown Connected Components: \n" \
+                        + str(conn_comp) + "\nKnown Connected Components in Question: \n" + str(current_conn_comp) \
+                        + "\nDid DFS find all connected components from the start node?\n" +"(DFS)" + str(dfs) + "\n=?\n" + str(current_conn_comp) + "\nResult: "
+            result = set(current_conn_comp).__eq__(set(dfs))
+            message1 += str(result)
+            print(message1)
+            addToDoc(document,text=message1,addparagraph=True) 
+            # message2
+            message2 = "\n\nBFS\nStart node: " + node + "\nConnected Components found by BFS from the start node: \n" + str(bfs) + "\nKnown Connected Components: \n" \
+                        + str(conn_comp) + "\nKnown Connected Components in Question: \n" + str(current_conn_comp) \
+                        + "\nDid BFS find all connected components from the start node?\n" +"(BFS)" + str(dfs) + "\n=?\n" + str(current_conn_comp) + "\nResult: "
+            result = set(current_conn_comp).__eq__(set(dfs))
+            message2 += str(result)
+            print(message2)
+            addToDoc(document,text=message2,addparagraph=True)
+            document.add_page_break()
+
+
+
+            # #list for storing results for DFS & BFS
+            # dfs = []
+            # bfs = []
+            # #generate temp graph
+            # temp_G_dfs = nx.Graph()
+            # temp_G_bfs = nx.Graph()
+            # previous_node = '' #stores previous node while doing dfs or bfs
+            # for current_node in nx.dfs_tree(G_undirected,node):
+            #     dfs.append(current_node)
+            #     if previous_node != current_node and previous_node != '': #create the temp graph
+            #         temp_G_dfs.add_edge(previous_node,current_node)
+            #     # assign the previous node
+            #     previous_node = current_node
+            # previous_node = '' #reset for bfs
+            # for current_node in nx.bfs_tree(G_undirected,node):
+            #     bfs.append(current_node)
+            #     if previous_node != current_node and previous_node != '': #create the temp graph for bfs
+            #         temp_G_bfs.add_edge(previous_node,current_node)
+            #     previous_node = current_node
+            # #display both dfs & bfs figures for the user to see if they chose to view
+            # generateGraphSideBySideForComparison(temp_G_dfs,temp_G_bfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=view)
+            # # determine which list of connected components the node belongs within
+            # if node in list_connected_components_1:
+            #     list_connected_components = list_connected_components_1
+            # else:
+            #     list_connected_components = list_connected_components_2
+            # # print message / doc message
+            # message = "\nKnown connected components: " + str(list_connected_components) + \
+            #         "\nStarting from node: " + node + "..." + \
+            #         "\nConnected components determined with DFS: " + str(dfs) + \
+            #         "\nConnected components determined with BFS: " + str(bfs) + \
+            #         "\nDid DFS and BFS result in getting all the connected components?" + \
+            #         "\n(DFS)" + str(dfs) + "=?" + str(list_connected_components) + ": "
+            # # compare with list of connected components
+            # dfs.sort()
+            # result = list_connected_components.__eq__(dfs)
+            # message += str(result)
+            # message += "\n(BFS)" + str(bfs) + "=?" + str(list_connected_components) + ": "
+            # bfs.sort()
+            # result = list_connected_components.__eq__(bfs)
+            # message += str(result)
+            # print(message)
+            # addToDoc(document,text=message,addparagraph=True)
     
     #
     # ######################### --------------- QUESTION 2 ---------------#########################  #
@@ -308,29 +356,31 @@ def task1(document):
     # Can both BFS and DFS determine if there is a path between two given nodes?
     #ask if the user wants to compare the graphs, or just view it later in the file
     view,answerQuestion = viewGraphs() 
-    for node in G_undirected.nodes():
-        # message1
-        message1 = "\n\nDFS\nStart node: " + node
-        print(message1)
-        addToDoc(document,text=message1,addparagraph=True)
-        
-        for current_node in nx.dfs_tree(G_undirected, node):
-            if current_node != node: # A == A, B == B, etc (starting nodes)
-                # message2
-                message2 = "\nDFS found a path from start node " + node + " and end node " + current_node  
-                print(message2)
-                addToDoc(document,text=message2,addparagraph=True)
-        # message3
-        message3 = "\n\nBFS\nStart node: " + node
-        print(message3)
-        addToDoc(document,text=message3,addparagraph=True)
-        for current_node in nx.bfs_tree(G_undirected, node):
-            if current_node != node:
-                # message4
-                message4 = "\nBFS found a path from start node " + node + " and end node " + current_node  
-                print(message4)
-                addToDoc(document,text=message4,addparagraph=True)
-        document.add_page_break()
+
+    if answerQuestion:
+        for node in G_undirected.nodes():
+            # message1
+            message1 = "\n\nDFS\nStart node: " + node
+            print(message1)
+            addToDoc(document,text=message1,addparagraph=True)
+            
+            for current_node in nx.dfs_tree(G_undirected, node):
+                if current_node != node: # A == A, B == B, etc (starting nodes)
+                    # message2
+                    message2 = "\nDFS found a path from start node " + node + " and end node " + current_node  
+                    print(message2)
+                    addToDoc(document,text=message2,addparagraph=True)
+            # message3
+            message3 = "\n\nBFS\nStart node: " + node
+            print(message3)
+            addToDoc(document,text=message3,addparagraph=True)
+            for current_node in nx.bfs_tree(G_undirected, node):
+                if current_node != node:
+                    # message4
+                    message4 = "\nBFS found a path from start node " + node + " and end node " + current_node  
+                    print(message4)
+                    addToDoc(document,text=message4,addparagraph=True)
+            document.add_page_break()
 
     # if answerQuestion:
     #     for node in G_undirected.nodes():
@@ -385,8 +435,79 @@ def task1(document):
     #ask if the user wants to compare the graphs, or just view it later in the file
     view,answerQuestion = viewGraphs() 
 
-    if answerQuestion:                
+    if answerQuestion:
+        #find the known connected component parts
+        conn_comp_1 = conn_comp[0]
+        conn_comp_2 = conn_comp[1]
 
+
+        for nodeA in conn_comp_1:
+            for nodeB in conn_comp_1:
+                if nodeA != nodeB:
+                    dfs = []
+                    bfs = []
+                    #message 1 
+                    message1 = "\nKnown Connected Components: \n" + str(conn_comp_1) \
+                             + "\nStart node: \n" + nodeA + "\nNode to compare DFS and BFS path: \n" + nodeB
+                    for i in nx.dfs_tree(G_undirected, nodeA):
+                        dfs.append(i)
+                    message1 += "\nConnected Components found by DFS from the start node: \n" + str(dfs)
+                    for i in nx.bfs_tree(G_undirected, nodeA):
+                        bfs.append(i)
+                    message1 += "\nConnected Components found by BFS from the start node: \n" + str(bfs)
+                    if nodeB in dfs and nodeB in bfs: #REVISE
+                        dfsendnodeindex = dfs.index(nodeB)
+                        bfsendnodeindex = bfs.index(nodeB)
+                        dfspath = dfs[:dfsendnodeindex]
+                        message1 += "\n(DFS)Connected Components from start node to comparable node: \n" + str(dfspath)
+                        bfspath = bfs[:bfsendnodeindex]
+                        message1 += "\n(BFS)Connected Components from start node to comparable node: \n" + str(bfspath) \
+                                + "\nAre the paths exactly the same? \n" + "(DFS)" + str(dfspath) + "\n=?\n" + "(BFS)" + str(bfspath) \
+                                + "\nResult: "
+                        if dfspath == bfspath:
+                            message1 += "True"
+                        else: 
+                            message1 += "False"
+                    else: 
+                        message1 += "\nTest"
+                        print("Test") #task1file.write("\nNo path exists between " + str(nodeA) + " and " + str(i)) 
+                    print(message1)
+                    addToDoc(document,text=message1,addparagraph=True)
+                    document.add_page_break()
+
+        for nodeA in conn_comp_2:
+            for nodeB in conn_comp_2:
+                if nodeA != nodeB:
+                    dfs = []
+                    bfs = []
+                    #message 2 
+                    message2 = "\nKnown Connected Components: \n" + str(conn_comp_2) \
+                             + "\nStart node: \n" + nodeA + "\nNode to compare DFS and BFS path: \n" + nodeB
+                    for i in nx.dfs_tree(G_undirected, nodeA):
+                        dfs.append(i)
+                    message2 += "\nConnected Components found by DFS from the start node: \n" + str(dfs)
+                    for i in nx.bfs_tree(G_undirected, nodeA):
+                        bfs.append(i)
+                    message2 += "\nConnected Components found by BFS from the start node: \n" + str(bfs)
+                    if nodeB in dfs and nodeB in bfs: #REVISE
+                        dfsendnodeindex = dfs.index(nodeB)
+                        bfsendnodeindex = bfs.index(nodeB)
+                        dfspath = dfs[:dfsendnodeindex]
+                        message2 += "\n(DFS)Connected Components from start node to comparable node: \n" + str(dfspath)
+                        bfspath = bfs[:bfsendnodeindex]
+                        message2 += "\n(BFS)Connected Components from start node to comparable node: \n" + str(bfspath) \
+                                + "\nAre the paths exactly the same? \n" + "(DFS)" + str(dfspath) + "\n=?\n" + "(BFS)" + str(bfspath) \
+                                + "\nResult: "
+                        if dfspath == bfspath:
+                            message2 += "True"
+                        else: 
+                            message2 += "False"
+                    else: 
+                        message2 += "\nTest"
+                        print("Test") #task1file.write("\nNo path exists between " + str(nodeA) + " and " + str(i)) 
+                    print(message2)
+                    addToDoc(document,text=message2,addparagraph=True)
+                    document.add_page_break()     
 
 
     # if answerQuestion:
@@ -458,7 +579,63 @@ def task1(document):
     #                 document.add_page_break()
     #                 temp_list = []
             
+def task2(document):
+    # questions
+    question1 = "\n\nQUESTION:\nUse an application to find the strongly connected components of the digraph.\n\n"
+    question2 = "\n\nQUESTION:\nDraw the digraph as a 'meta graph' of its strongly connected components in the report.\n\n"
+    question3 = "\n\nQUESTION:\nRepresent the 'meta graph' as a DAG and linearize it in its topological order.\n\n"
+    #create graph
+    G=nx.DiGraph()
+    
+    task2graphedges = [(1,3),
+                       (3,2),
+                       (3,5),
+                       (2,1),
+                       (4,1),
+                       (4,12),
+                       (5,6),
+                       (5,8),
+                       (6,8),
+                       (6,7),
+                       (8,9),
+                       (9,5),
+                       (9,11),
+                       (8,10),
+                       (10,9),
+                       (6,10),
+                       (7,10),
+                       (10,11),
+                       (11,12)]
+    #add edges
+    G.add_edges_from(task2graphedges)
+    # digraph 1
 
+    #get connected components
+    conn_comp = getConnectedComponents(G)
+
+    pos={ # positions for nodes
+        
+        "A":(0,10),
+        "B":(2.5,10),
+        "C":(5,10),
+        "D":(7.5,10),
+        "E":(0,7.5),
+        "F":(2.5,7.5),
+        "G":(5,7.5),
+        "H":(7.5,7.5),
+        "I":(0,5),
+        "J":(2.5,5),
+        "K":(5,5),
+        "L":(7.5,5),
+        "M":(0,2.5),
+        "N":(2.5,2.5),
+        "O":(5,2.5),
+        "P":(7.5,2.5),
+    }
+
+    #
+    # ######################### --------------- QUESTION 1 ---------------#########################  #
+    # 
          
 
     
@@ -480,10 +657,13 @@ def main():
     createResults = False
     while choice:
         #get input and ask which task to view
-        print("\nPlease select the task to be viewed:\n1. DFS & BFS on undirected graph\n2. \n3. \n4. Quit/Save Results")
+        print("\nPlease select the task to be viewed:\n1. DFS & BFS on undirected graph\n2. Connected digraph as a 'meta graph'" \
+              + "\n3. \n4. Quit/Save Results")
         opt1 = input("\nChoice: ")
         if opt1.__eq__("1"): 
             task1(document=document)
+        elif opt1.__eq__("2"):
+            task2(document=document)
         elif opt1.__eq__("4"):
             print("Would you like to save these results?\n1. Yes\n2. No")
             opt2 = input("\nChoice: ")
