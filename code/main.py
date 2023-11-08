@@ -138,6 +138,22 @@ def getConnectedComponents(G):
     for connected_components_list in temp_list:
         conn_comp.append(list(connected_components_list))
     return conn_comp
+
+def getStronglyConnectedComponents(G):
+    scc_gen = nx.strongly_connected_components(G)
+    #list comprehension
+    temp_list = list(scc_gen)
+    scc = []
+    for scc_list in temp_list:
+        scc.append(list(scc_list))
+    return scc
+
+def createDigraphWithSCC(G):
+    testter = nx.condensation(G)
+    node_data = testter.nodes.data()
+    map = {}
+    for node_data_stuff in node_data:
+        map[node_data_stuff[0]] = node_data_stuff[1]['members']
     
 
 def task1(document):
@@ -654,6 +670,38 @@ def task2(document):
     # Use an application to find the strongly connected components of the digraph
     #ask if the user wants to compare the graphs, or just view it later in the file
     view,answerQuestion = viewGraphs()
+
+    if answerQuestion:
+        #get scc's from digraph
+        nx.strongly_connected_components
+        scc = getStronglyConnectedComponents(G)
+        #message1
+        message1 = "Strongly Connected Components for the digraph: "
+        for scc_group in scc:
+            message1 += "\n" + str(scc_group)
+        print(message1)
+        addToDoc(document,text=message1,addparagraph=True)
+        document.add_page_break()
+
+    #
+    # ######################### --------------- QUESTION 2 ---------------#########################  #
+    # 
+    print(question2)
+    # add question to document
+    addToDoc(document,text=question2,addparagraph=True)
+
+    # generate undirected graph 
+    generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True,is_directed=True)
+
+    document.add_page_break()
+
+    # Draw the digraph as a 'meta graph' of its strongly connected components in the report
+    #ask if the user wants to compare the graphs, or just view it later in the file
+    view,answerQuestion = viewGraphs()
+
+    nx.strongl
+
+
          
 
     
