@@ -111,7 +111,12 @@ scc = nx.strongly_connected_components(G)
 # print(message1)
 # #print(conn_comp)
 
+
 testter = nx.condensation(G)
+
+# nx.draw_networkx(testter,node_size=1000,width=3)
+# plt.margins(0.2)
+#plt.show()
 
 node_data = testter.nodes.data()
 map = {}
@@ -130,13 +135,62 @@ testter = nx.relabel_nodes(testter,map)
 #edge_data = G.edges
 #print(edge_data)
 
+# nx.draw_networkx(testter,node_size=1000,width=3)
+# plt.margins(0.2)
+#plt.show()
+
 # edge_data = testter.edges
 # print(edge_data)
-nx.spring_layout(testter)
-# nx.draw_networkx(testter,node_size=8000,width=10)
-# nx.spreadout(G)
-# plt.margins(1,1)
-# figure = plt.gcf()
-# figure.set_size_inches(5,5)
-plt.savefig("testter.png")
+#nx.spring_layout(testter)
+
+if nx.is_directed_acyclic_graph(testter):
+    print("true")
+
+testter = nx.dag_to_branching(testter)
+
+if nx.is_directed_acyclic_graph(testter):
+    print("true")
+
+
+node_data = testter.nodes.data()
+map = {}
+print(node_data)
+for node_data_stuff in node_data:
+    test_str = str(node_data_stuff[1]['source'])
+    # test_str = test_str[1:]
+    # test_str = test_str[:-1]
+    print(test_str)
+    map[node_data_stuff[0]] = test_str
+    # print(node_data_stuff[0])
+    # print(node_data_stuff[1]['members']) 
+    #print(node_data_stuff)
+print(map)
+testter = nx.relabel_nodes(testter,map)
+
+node_data = testter.nodes.data()
+pos = {}
+print(node_data)
+i = 0
+for node_data_stuff in node_data:
+    #test_str = str(node_data_stuff[1]['source'])
+    # test_str = test_str[1:]
+    # test_str = test_str[:-1]
+    pos[node_data_stuff[0]] = (i,5)
+    i += 2.5
+
+
+nx.draw(testter,pos=pos,node_size=700,with_labels=True,width=3,connectionstyle='arc3, rad=0.5')
+
+
+
+
+
+
+#plt.margins(0.2)
+plt.show()
+# # nx.spreadout(G)
+# # plt.margins(1,1)
+# # figure = plt.gcf()
+# # figure.set_size_inches(5,5)
+# plt.savefig("testter.png")
 
