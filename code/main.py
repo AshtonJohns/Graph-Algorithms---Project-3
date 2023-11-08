@@ -16,19 +16,30 @@ def addToDoc(document,task="",text="",tmpFile="",addparagraph=False,addFigure=Fa
         p = document.add_paragraph()
         p.add_run(text).bold = True
     if addFigure:
-        document.add_heading(task + "graph",level=1)
+        document.add_heading(task + " graph",level=1)
         document.add_picture(tmpFile)
 
 def generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=False,wouldLikeToViewGraphs=True,node_size=1000,x=3,y=3,is_directed=False): #genereate all kinds of graphs
     if mainIllustration:
-        if not is_directed:
+        if task.startswith("task 2"):
             nx.draw(G,pos=pos,with_labels=True,node_color="red",node_size=3000,font_color="white",font_size=20,font_family="Times New Roman", font_weight="bold",width=5,edge_color="black")
+        elif task.startswith("task 3"):
+            nx.draw_networkx(G, pos)
+            nx.draw_networkx_edge_labels(G, pos, edge_labels=nx.get_edge_attributes(G, 'weight')) 
         else:
             nx.draw_networkx(G,pos=pos,with_labels=True)
         plt.margins(0.2)
         #add image to docx file
         plt.savefig(tmpFile)
         # add figure to document
+        addToDoc(document,task=task,tmpFile=tmpFile,addFigure=True)
+    elif not mainIllustration and task.startswith("task 2"):
+        if task.startswith("task 2 question 3"):
+            nx.draw(G,pos=pos,node_size=700,with_labels=True,width=3,connectionstyle='arc3, rad=0.5')
+        else:
+            nx.draw_networkx(G,node_size=node_size,width=3)
+        plt.margins(0.2)
+        plt.savefig(tmpFile)
         addToDoc(document,task=task,tmpFile=tmpFile,addFigure=True)
     else: # compare 
         nx.draw(G,pos=pos,with_labels=True,node_color="green",node_size=node_size,font_color="white",font_size=10,font_family="Times New Roman", font_weight="bold",width=2,edge_color="black")
@@ -153,12 +164,36 @@ def createDigraphWithSCC(G):
     node_data = testter.nodes.data()
     map = {}
     for node_data_stuff in node_data:
-        map[node_data_stuff[0]] = node_data_stuff[1]['members']
+        test_str = str(node_data_stuff[1]['members'])
+        test_str = test_str[1:]
+        test_str = test_str[:-1]
+        map[node_data_stuff[0]] = test_str
+    testter = nx.relabel_nodes(testter,map)
+    return testter
+
+def createDAG(G):
+    testter = nx.dag_to_branching(G)
+    node_data = testter.nodes.data()
+    map = {}
+    for node_data_stuff in node_data:
+        test_str = str(node_data_stuff[1]['source'])
+        print(test_str)
+        map[node_data_stuff[0]] = test_str
+    testter = nx.relabel_nodes(testter,map)
+
+    node_data = testter.nodes.data()
+    pos = {}
+    print(node_data)
+    i = 0
+    for node_data_stuff in node_data:
+        pos[node_data_stuff[0]] = (i,5)
+        i += 2.5
+    return testter,pos
     
 
 def task1(document):
     #current task
-    task = "Task 1 "
+    task = "Task 1"
     #temp file for graphs
     tmpFile = "graph.png"
     # move on message
@@ -269,7 +304,7 @@ def task1(document):
     print(question1)
     # add question to document
     addToDoc(document,text=question1,addparagraph=True)
-
+    task = "task 1 question 1"
     # generate undirected graph 
     generateGraph(G_undirected,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True)
 
@@ -370,6 +405,7 @@ def task1(document):
     print(message)
     addToDoc(document,text=message,addparagraph=True)
     # generate undirected graph 
+    task = "task 1 question 2"
     generateGraph(G_undirected,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True)
     document.add_page_break()
     # Can both BFS and DFS determine if there is a path between two given nodes?
@@ -448,6 +484,7 @@ def task1(document):
     print(message)
     addToDoc(document,text=message,addparagraph=True)
     # generate undirected graph 
+    task = "task 1 question 3"
     generateGraph(G_undirected,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True)
     document.add_page_break()
     # Provided that there is a path between two vertices u and v in the graph. If started from u, do DFS and BFS always find exactly the same path to v?
@@ -661,7 +698,7 @@ def task2(document):
     print(question1)
     # add question to document
     addToDoc(document,text=question1,addparagraph=True)
-
+    task = "task 2 question 1"
     # generate undirected graph 
     generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True,is_directed=True)
 
@@ -690,6 +727,7 @@ def task2(document):
     # add question to document
     addToDoc(document,text=question2,addparagraph=True)
 
+    task = "task 2 question 2"
     # generate undirected graph 
     generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True,is_directed=True)
 
@@ -699,10 +737,113 @@ def task2(document):
     #ask if the user wants to compare the graphs, or just view it later in the file
     view,answerQuestion = viewGraphs()
 
-    nx.strongl
+    if answerQuestion:
+        meta_graph = createDigraphWithSCC(G)
+        #message1
+        message1 = "Digraph as a meta-graph of its strongly connected components"
+        print(message1)
+        addToDoc(document,text=message1,addparagraph=True)
+        generateGraph(meta_graph,pos,tmpFile,document,task,pressAnyKey,mainIllustration=False,wouldLikeToViewGraphs=True,is_directed=True)
+        document.add_page_break()
+    
+    #
+    # ######################### --------------- QUESTION 3 ---------------#########################  #
+    # 
+    print(question3)
+    # add question to document
+    addToDoc(document,text=question3,addparagraph=True)
+
+    task = "task 2 question 3"
+    # generate undirected graph 
+    generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True,is_directed=True)
+
+    document.add_page_break()
+
+    # Represent the 'meta graph' as a DAG and linearize it in its topological order
+    #ask if the user wants to compare the graphs, or just view it later in the file
+    view,answerQuestion = viewGraphs()
+
+    if answerQuestion:
+        meta_graph = createDigraphWithSCC(G)
+        DAGgraph,pos = createDAG(meta_graph)
+        #message1
+        message1 = "Meta-graph as a DAG, linearized in its topological order"
+        print(message1)
+        addToDoc(document,text=message1,addparagraph=True)
+        generateGraph(DAGgraph,pos,tmpFile,document,task,pressAnyKey,mainIllustration=False,wouldLikeToViewGraphs=True,is_directed=True)
+        document.add_page_break() 
 
 
-         
+def task3(document):
+    #current task
+    task = "Task 3"
+    #temp file for graphs
+    tmpFile = "graph.png"
+    # move on message
+    pressAnyKey = "\n\n" + task + "graph\n\n" + "\n---PRESS ANY KEY TO MOVE ON!---\n\n"
+    # questions
+    question1 = "\n\nQUESTION:\nWrite an application that applies Dijkstra’s algorithm to produce the shortest path tree for \
+                a weighted graph with a given starting node. Test and verify your program with the given graph starting with node A\n\n"
+    question2 = "\n\nQUESTION:\nWrite a program that produces a minimum spanning tree for a connected weighted graph.\n\n"
+    question3 = "\n\nQUESTION:\nAre a shortest path tree and a minimum spanning tree usually the same?\n\n"
+    question4 = "\n\nQUESTION:\nIf the graph has an edge with a negative weight, can you apply Dijkstra's algorithm to find a shortest path tree?\n\n"
+
+
+    G_weighted_undirected = nx.Graph()
+
+    G_weighted_undirected.add_edge("A", "B",weight=22)
+    G_weighted_undirected.add_edge("A","C",weight=9)
+    G_weighted_undirected.add_edge("A","D",weight=12)
+    G_weighted_undirected.add_edge("B","F",weight=36)
+    G_weighted_undirected.add_edge("C","B",weight=35)
+    G_weighted_undirected.add_edge("C","D",weight=4)
+    G_weighted_undirected.add_edge("C","E",weight=65)
+    G_weighted_undirected.add_edge("C","F",weight=42)
+    G_weighted_undirected.add_edge("D","E",weight=33)
+    G_weighted_undirected.add_edge("E","G",weight=23)
+    G_weighted_undirected.add_edge("E","F",weight=18)
+    G_weighted_undirected.add_edge("F","G",weight=39)
+    G_weighted_undirected.add_edge("B","H",weight=34)
+    G_weighted_undirected.add_edge("D","I",weight=30)
+    G_weighted_undirected.add_edge("H","I",weight=19)
+    G_weighted_undirected.add_edge("F","H",weight=24)
+    G_weighted_undirected.add_edge("G","I",weight=21)
+    G_weighted_undirected.add_edge("G","H",weight=25)
+
+
+    pos={ # positions for nodes
+        
+        "A":(0,7.5),
+        "B":(2.5,10),
+        "C":(2.5,7.5),
+        "D":(2.5,2.5),
+        "E":(5,5),
+        "F":(5,7.5),
+        "G":(7.5,5),
+        "H":(10,10),
+        "I":(10,2.5),
+    }
+
+    #
+    # ######################### --------------- QUESTION 1 ---------------#########################  #
+    # 
+    print(question1)
+    # add question to document
+    addToDoc(document,text=question1,addparagraph=True)
+    task = "task 3 question 1"
+    # generate undirected graph 
+    generateGraph(G_weighted_undirected,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True)
+
+    document.add_page_break()
+
+    # can DFS & BFS find all components of undirected graph?
+    #ask if the user wants to compare the graphs, or just view it later in the file
+    view,answerQuestion = viewGraphs()     
+
+    if answerQuestion:
+        print("Works!")
+    
+
 
     
     
@@ -724,12 +865,14 @@ def main():
     while choice:
         #get input and ask which task to view
         print("\nPlease select the task to be viewed:\n1. DFS & BFS on undirected graph\n2. Connected digraph as a 'meta graph'" \
-              + "\n3. \n4. Quit/Save Results")
+              + "\n3. Dijkstra's algorithm on a weighted undirected graph \n4. Quit/Save Results")
         opt1 = input("\nChoice: ")
         if opt1.__eq__("1"): 
             task1(document=document)
         elif opt1.__eq__("2"):
             task2(document=document)
+        elif opt1.__eq__("3"):
+            task3(document=document)
         elif opt1.__eq__("4"):
             print("Would you like to save these results?\n1. Yes\n2. No")
             opt2 = input("\nChoice: ")
