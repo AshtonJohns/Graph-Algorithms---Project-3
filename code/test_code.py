@@ -278,7 +278,7 @@ test_G2 = nx.Graph()
 
 
 
-# nx.draw(test_G2,pos=pos,node_size=700,with_labels=True,width=3)
+nx.draw(test_G2,pos=pos,node_size=700,with_labels=True,width=3)
 # plt.show()
 
 
