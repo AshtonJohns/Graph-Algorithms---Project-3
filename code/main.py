@@ -836,12 +836,46 @@ def task3(document):
 
     document.add_page_break()
 
-    # can DFS & BFS find all components of undirected graph?
+    # Write an application that applies Dijkstra’s algorithm to produce the shortest path 
+    #tree for a weighted graph with a given starting node. Test and verify your program 
+    #with the given graph starting with node A
     #ask if the user wants to compare the graphs, or just view it later in the file
     view,answerQuestion = viewGraphs()     
 
     if answerQuestion:
-        print("Works!")
+        
+        start_node = "A"
+        nodes = G_weighted_undirected.nodes()
+        spt = nx.single_source_dijkstra_path(G_weighted_undirected,start_node,weight='weight')
+        #message1
+        message1 = "Nodes: \n" + str(nodes) + "\nDijkstra's algorithm found the shortest path tree:\n"
+        for x,value in spt.items():
+            message1 += "Shortest path from " + start_node + " to " + x + ":\n"
+            message1 += str(value) + "\n"
+        print(message1)
+        # add question to document
+        addToDoc(document,text=message1,addparagraph=True)
+        document.add_page_break()
+
+
+    #
+    # ######################### --------------- QUESTION 2 ---------------#########################  #
+    # 
+    print(question1)
+    # add question to document
+    addToDoc(document,text=question1,addparagraph=True)
+    task = "task 3 question 2"
+    # generate undirected graph 
+    generateGraph(G_weighted_undirected,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True)
+
+    document.add_page_break()
+
+    # Write a program that produces a minimum spanning tree for a connected weighted graph
+    
+    #ask if the user wants to compare the graphs, or just view it later in the file
+    view,answerQuestion = viewGraphs()     
+
+    if answerQuestion:
     
 
 
