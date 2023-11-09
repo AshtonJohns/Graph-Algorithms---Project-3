@@ -19,25 +19,31 @@ def addToDoc(document,task="",text="",tmpFile="",addparagraph=False,addFigure=Fa
         document.add_heading(task + " graph",level=1)
         document.add_picture(tmpFile)
 
-def generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=False,wouldLikeToViewGraphs=True,node_size=1000,x=3,y=3,is_directed=False): #genereate all kinds of graphs
+def generateGraph(G,pos,tmpFile,document,task,mainIllustration=False,wouldLikeToViewGraphs=True,node_size=1000,x=3,y=3): #genereate all kinds of graphs
     if mainIllustration:
-        if task.startswith("task 2"):
+        if task.startswith("task 2"): #directed
             nx.draw(G,pos=pos,with_labels=True,node_color="red",node_size=3000,font_color="white",font_size=20,font_family="Times New Roman", font_weight="bold",width=5,edge_color="black")
-        elif task.startswith("task 3"):
+        elif task.startswith("task 3"): #undirected, weighted
             nx.draw_networkx(G, pos)
             nx.draw_networkx_edge_labels(G, pos, edge_labels=nx.get_edge_attributes(G, 'weight')) 
-        else:
+        else: #undirected
             nx.draw_networkx(G,pos=pos,with_labels=True)
         plt.margins(0.2)
         #add image to docx file
         plt.savefig(tmpFile)
         # add figure to document
         addToDoc(document,task=task,tmpFile=tmpFile,addFigure=True)
-    elif not mainIllustration and task.startswith("task 2"):
+    elif not mainIllustration and task.startswith("task 2"): #task 2 graphs
         if task.startswith("task 2 question 3"):
-            nx.draw(G,pos=pos,node_size=700,with_labels=True,width=3,connectionstyle='arc3, rad=0.5')
+            nx.draw(G,pos=pos,node_size=700,with_labels=True,width=3,connectionstyle='arc3, rad=0.5') #connectionstyle allows for the directed edges to be curved for viewing purposes
         else:
             nx.draw_networkx(G,node_size=node_size,width=3)
+        plt.margins(0.2)
+        plt.savefig(tmpFile)
+        addToDoc(document,task=task,tmpFile=tmpFile,addFigure=True)
+    elif not mainIllustration and task.startswith("task 3"): #task 3 graphs
+        if task.startswith("task 3 question 2"):
+            nx.draw(G,pos=pos,node_size=700,with_labels=True,width=3)
         plt.margins(0.2)
         plt.savefig(tmpFile)
         addToDoc(document,task=task,tmpFile=tmpFile,addFigure=True)
@@ -63,57 +69,58 @@ def generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=False
         plt.clf()
         plt.close()
 
-def generateGraphSideBySideForComparison(G_dfs,G_bfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=True):
-    #dfs
-    tmpFile_dfs = "dfs" + tmpFile
-    nx.draw(G_dfs,pos=pos,with_labels=True,node_color="green",node_size=400,font_color="white",font_size=20,font_family="Times New Roman", font_weight="bold",width=3,edge_color="black")
-    plt.margins(0.2)
-    #save to figure
-    figure = plt.gcf()
-    figure.set_size_inches(2.5,2.5)
-    #add image to docx file
-    plt.savefig(tmpFile_dfs)
-    # add figure to document
-    addToDoc(document,task=task,tmpFile=tmpFile_dfs,addFigure=True)
-    plt.clf()
-    plt.close()
+#-----------REVISE : was used to draw graphs side by side, but this was determined to not be a valid approach for this task.-------------
+# def generateGraphSideBySideForComparison(G_dfs,G_bfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=True):
+#     #dfs
+#     tmpFile_dfs = "dfs" + tmpFile
+#     nx.draw(G_dfs,pos=pos,with_labels=True,node_color="green",node_size=400,font_color="white",font_size=20,font_family="Times New Roman", font_weight="bold",width=3,edge_color="black")
+#     plt.margins(0.2)
+#     #save to figure
+#     figure = plt.gcf()
+#     figure.set_size_inches(2.5,2.5)
+#     #add image to docx file
+#     plt.savefig(tmpFile_dfs)
+#     # add figure to document
+#     addToDoc(document,task=task,tmpFile=tmpFile_dfs,addFigure=True)
+#     plt.clf()
+#     plt.close()
 
-    #bfs
-    tmpFile_bfs = "bfs" + tmpFile
-    nx.draw(G_bfs,pos=pos,with_labels=True,node_color="green",node_size=400,font_color="white",font_size=20,font_family="Times New Roman", font_weight="bold",width=3,edge_color="black")
-    plt.margins(0.2)
-    #save to figure
-    figure = plt.gcf()
-    figure.set_size_inches(2.5,2.5)
-    #add image to docx file
-    plt.savefig(tmpFile_bfs)
-    # add figure to document
-    addToDoc(document,task=task,tmpFile=tmpFile_bfs,addFigure=True)
-    plt.clf()
-    plt.close()
+#     #bfs
+#     tmpFile_bfs = "bfs" + tmpFile
+#     nx.draw(G_bfs,pos=pos,with_labels=True,node_color="green",node_size=400,font_color="white",font_size=20,font_family="Times New Roman", font_weight="bold",width=3,edge_color="black")
+#     plt.margins(0.2)
+#     #save to figure
+#     figure = plt.gcf()
+#     figure.set_size_inches(2.5,2.5)
+#     #add image to docx file
+#     plt.savefig(tmpFile_bfs)
+#     # add figure to document
+#     addToDoc(document,task=task,tmpFile=tmpFile_bfs,addFigure=True)
+#     plt.clf()
+#     plt.close()
 
 
-    if wouldLikeToViewGraphs:
-        # Load the images
-        plt.clf()
-        plt.close()
-        image1 = plt.imread(tmpFile_dfs)
-        image2 = plt.imread(tmpFile_bfs)
+#     if wouldLikeToViewGraphs:
+#         # Load the images
+#         plt.clf()
+#         plt.close()
+#         image1 = plt.imread(tmpFile_dfs)
+#         image2 = plt.imread(tmpFile_bfs)
 
-        # Create a figure and axes
-        fig, axes = plt.subplots(1, 2)
+#         # Create a figure and axes
+#         fig, axes = plt.subplots(1, 2)
 
-        # Plot the images
-        axes[0].imshow(image1)
-        axes[1].imshow(image2)
+#         # Plot the images
+#         axes[0].imshow(image1)
+#         axes[1].imshow(image2)
 
-        # Show the figure
-        plt.show(block=False) # display graph
-        # inform user to press any key to move on
-        #print(pressAnyKey)
-        input("\n---Press Enter to continue---")
-        plt.clf()
-        plt.close()
+#         # Show the figure
+#         plt.show(block=False) # display graph
+#         # inform user to press any key to move on
+#         #print(pressAnyKey)
+#         input("\n---Press Enter to continue---")
+#         plt.clf()
+#         plt.close()
     
 
 
@@ -142,53 +149,51 @@ def viewGraphs():
     return viewFile,answerQuestion
 
 def getConnectedComponents(G):
-    conn_comp_gen = nx.connected_components(G)
+    conn_comp_gen = nx.connected_components(G) #gets connected components from graph
     #list comprehension 
     temp_list = list(conn_comp_gen)
     conn_comp = []
     for connected_components_list in temp_list:
         conn_comp.append(list(connected_components_list))
-    return conn_comp
+    return conn_comp #a list of each of the connected components 
 
 def getStronglyConnectedComponents(G):
-    scc_gen = nx.strongly_connected_components(G)
+    scc_gen = nx.strongly_connected_components(G) #gets scc 
     #list comprehension
     temp_list = list(scc_gen)
     scc = []
     for scc_list in temp_list:
         scc.append(list(scc_list))
-    return scc
+    return scc #list of all scc (eg, [1],[5,6,7])
 
 def createDigraphWithSCC(G):
-    testter = nx.condensation(G)
+    testter = nx.condensation(G) #get the condensation of G is the graph with each of the scc contracted into a single node
     node_data = testter.nodes.data()
     map = {}
-    for node_data_stuff in node_data:
+    for node_data_stuff in node_data: #turns generator into a hashmap, with keys being nodes (representations of scc), and values being scc
         test_str = str(node_data_stuff[1]['members'])
         test_str = test_str[1:]
         test_str = test_str[:-1]
         map[node_data_stuff[0]] = test_str
-    testter = nx.relabel_nodes(testter,map)
-    return testter
+    testter = nx.relabel_nodes(testter,map) #relabels the node representations of scc (eg 1 -> [1,2,3], 2 -> [4])
+    return testter #digraph of scc
 
 def createDAG(G):
-    testter = nx.dag_to_branching(G)
+    testter = nx.dag_to_branching(G) # get creates DAG
     node_data = testter.nodes.data()
     map = {}
-    for node_data_stuff in node_data:
+    for node_data_stuff in node_data: #since this DAG has nodes not the same as digraph, get the mapping
         test_str = str(node_data_stuff[1]['source'])
-        print(test_str)
         map[node_data_stuff[0]] = test_str
-    testter = nx.relabel_nodes(testter,map)
+    testter = nx.relabel_nodes(testter,map) #relabels nodes to accurately depict the nodes from digraph
 
     node_data = testter.nodes.data()
     pos = {}
-    print(node_data)
     i = 0
-    for node_data_stuff in node_data:
+    for node_data_stuff in node_data: # linearize the DAG in the correct order -> builds a hashmap with positions horizontal incrementing by 2.5 places
         pos[node_data_stuff[0]] = (i,5)
         i += 2.5
-    return testter,pos
+    return testter,pos #returns DAG and positions for the nodes
     
 
 def task1(document):
@@ -197,7 +202,7 @@ def task1(document):
     #temp file for graphs
     tmpFile = "graph.png"
     # move on message
-    pressAnyKey = "\n\n" + task + "graph\n\n" + "\n---PRESS ANY KEY TO MOVE ON!---\n\n"
+    #pressAnyKey = "\n\n" + task + "graph\n\n" + "\n---PRESS ANY KEY TO MOVE ON!---\n\n"
     # questions
     question1 = "\n\nQUESTION:\nStarting from any vertex, can DFS and BFS find all connected components of an undirected graph?\n\n"
     question2 = "\n\nQUESTION:\nCan both BFS and DFS determine if there is a path between two given nodes?\n\n"
@@ -227,9 +232,9 @@ def task1(document):
     #                       ["M","N"]
     #                      ]
 
-    task1graphedges = [("A", "B"),
-                       ("A", "F"),
-                       ("A", "E"),
+    G_undirected_edges = [("A", "B"),
+                          ("A", "F"),
+                          ("A", "E"),
                         ("B", "F"),
                         ("B", "C"),
                         ("C", "D"),
@@ -248,7 +253,7 @@ def task1(document):
                         ("L", "H"),
                         ("L", "P")]
     #add edges
-    G.add_edges_from(task1graphedges)
+    G.add_edges_from(G_undirected_edges)
     # G.add_edge("A","B")
     # G.add_edge("B","C")
     # G.add_edge("C","D")
@@ -306,16 +311,17 @@ def task1(document):
     addToDoc(document,text=question1,addparagraph=True)
     task = "task 1 question 1"
     # generate undirected graph 
-    generateGraph(G_undirected,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True)
+    generateGraph(G_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
 
     document.add_page_break()
 
     # can DFS & BFS find all components of undirected graph?
+
     #ask if the user wants to compare the graphs, or just view it later in the file
     view,answerQuestion = viewGraphs()     
 
     if answerQuestion:
-        for node in G_undirected.nodes():
+        for node in G_undirected.nodes():#loop over nodes
             #list for storing results for DFS & BFS
             dfs = []
             bfs = []
@@ -406,23 +412,23 @@ def task1(document):
     addToDoc(document,text=message,addparagraph=True)
     # generate undirected graph 
     task = "task 1 question 2"
-    generateGraph(G_undirected,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True)
+    generateGraph(G_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
     document.add_page_break()
     # Can both BFS and DFS determine if there is a path between two given nodes?
     #ask if the user wants to compare the graphs, or just view it later in the file
     view,answerQuestion = viewGraphs() 
 
     if answerQuestion:
-        for node in G_undirected.nodes():
+        for node in G_undirected.nodes(): #loop over nodes
             # message1
             message1 = "\n\nDFS\nStart node: " + node
             print(message1)
             addToDoc(document,text=message1,addparagraph=True)
             
-            for current_node in nx.dfs_tree(G_undirected, node):
+            for current_node in nx.dfs_tree(G_undirected, node): #create a dfs_tree starting from node (eg, "A"). 
                 if current_node != node: # A == A, B == B, etc (starting nodes)
                     # message2
-                    message2 = "\nDFS found a path from start node " + node + " and end node " + current_node  
+                    message2 = "\nDFS found a path from start node " + node + " and end node " + current_node  #states the path found from the start node to the end node (current_node -> all nodes in dfs_tree)
                     print(message2)
                     addToDoc(document,text=message2,addparagraph=True)
             # message3
@@ -485,7 +491,7 @@ def task1(document):
     addToDoc(document,text=message,addparagraph=True)
     # generate undirected graph 
     task = "task 1 question 3"
-    generateGraph(G_undirected,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True)
+    generateGraph(G_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
     document.add_page_break()
     # Provided that there is a path between two vertices u and v in the graph. If started from u, do DFS and BFS always find exactly the same path to v?
     #ask if the user wants to compare the graphs, or just view it later in the file
@@ -493,74 +499,73 @@ def task1(document):
 
     if answerQuestion:
         #find the known connected component parts
-        conn_comp_1 = conn_comp[0]
-        conn_comp_2 = conn_comp[1]
+        conn_comp_1 = conn_comp[0] #all connected nodes from spanning tree (conn_comp is a forest)
+        conn_comp_2 = conn_comp[1] #all connected nodes from spanning tree (conn_comp is a forest)
 
-
-        for nodeA in conn_comp_1:
-            for nodeB in conn_comp_1:
-                if nodeA != nodeB:
+        for node_A in conn_comp_1:
+            for node_B in conn_comp_1:
+                if node_A != node_B:
                     dfs = []
                     bfs = []
                     #message 1 
                     message1 = "\nKnown Connected Components: \n" + str(conn_comp_1) \
-                             + "\nStart node: \n" + nodeA + "\nNode to compare DFS and BFS path: \n" + nodeB
-                    for i in nx.dfs_tree(G_undirected, nodeA):
+                             + "\nStart node: \n" + node_A + "\nNode to compare DFS and BFS path: \n" + node_B
+                    for i in nx.dfs_tree(G_undirected, node_A):
                         dfs.append(i)
                     message1 += "\nConnected Components found by DFS from the start node: \n" + str(dfs)
-                    for i in nx.bfs_tree(G_undirected, nodeA):
+                    for i in nx.bfs_tree(G_undirected, node_A):
                         bfs.append(i)
                     message1 += "\nConnected Components found by BFS from the start node: \n" + str(bfs)
-                    if nodeB in dfs and nodeB in bfs: #REVISE
-                        dfsendnodeindex = dfs.index(nodeB)
-                        bfsendnodeindex = bfs.index(nodeB)
-                        dfspath = dfs[:dfsendnodeindex]
-                        message1 += "\n(DFS)Connected Components from start node to comparable node: \n" + str(dfspath)
-                        bfspath = bfs[:bfsendnodeindex]
-                        message1 += "\n(BFS)Connected Components from start node to comparable node: \n" + str(bfspath) \
-                                + "\nAre the paths exactly the same? \n" + "(DFS)" + str(dfspath) + "\n=?\n" + "(BFS)" + str(bfspath) \
-                                + "\nResult: "
-                        if dfspath == bfspath:
-                            message1 += "True"
-                        else: 
-                            message1 += "False"
+                    #if node_B in dfs and node_B in bfs: #REVISE
+                    dfsendnodeindex = dfs.index(node_B)
+                    bfsendnodeindex = bfs.index(node_B)
+                    dfspath = dfs[:dfsendnodeindex]
+                    message1 += "\n(DFS)Connected Components from start node to comparable node: \n" + str(dfspath)
+                    bfspath = bfs[:bfsendnodeindex]
+                    message1 += "\n(BFS)Connected Components from start node to comparable node: \n" + str(bfspath) \
+                            + "\nAre the paths exactly the same? \n" + "(DFS)" + str(dfspath) + "\n=?\n" + "(BFS)" + str(bfspath) \
+                            + "\nResult: "
+                    if dfspath == bfspath:
+                        message1 += "True"
                     else: 
-                        message1 += "\nTest"
-                        print("Test") #task1file.write("\nNo path exists between " + str(nodeA) + " and " + str(i)) 
+                        message1 += "False"
+                    # else: REVISE
+                    #     message1 += "\nTest"
+                    #     print("Test") #task1file.write("\nNo path exists between " + str(node_A) + " and " + str(i)) 
                     print(message1)
                     addToDoc(document,text=message1,addparagraph=True)
                     document.add_page_break()
 
-        for nodeA in conn_comp_2:
-            for nodeB in conn_comp_2:
-                if nodeA != nodeB:
+        for node_A in conn_comp_2:
+            for node_B in conn_comp_2:
+                if node_A != node_B:
                     dfs = []
                     bfs = []
                     #message 2 
                     message2 = "\nKnown Connected Components: \n" + str(conn_comp_2) \
-                             + "\nStart node: \n" + nodeA + "\nNode to compare DFS and BFS path: \n" + nodeB
-                    for i in nx.dfs_tree(G_undirected, nodeA):
+                             + "\nStart node: \n" + node_A + "\nNode to compare DFS and BFS path: \n" + node_B
+                    for i in nx.dfs_tree(G_undirected, node_A):
                         dfs.append(i)
                     message2 += "\nConnected Components found by DFS from the start node: \n" + str(dfs)
-                    for i in nx.bfs_tree(G_undirected, nodeA):
+                    for i in nx.bfs_tree(G_undirected, node_A):
                         bfs.append(i)
                     message2 += "\nConnected Components found by BFS from the start node: \n" + str(bfs)
-                    if nodeB in dfs and nodeB in bfs: #REVISE
-                        dfsendnodeindex = dfs.index(nodeB)
-                        bfsendnodeindex = bfs.index(nodeB)
-                        dfspath = dfs[:dfsendnodeindex]
-                        message2 += "\n(DFS)Connected Components from start node to comparable node: \n" + str(dfspath)
-                        bfspath = bfs[:bfsendnodeindex]
-                        message2 += "\n(BFS)Connected Components from start node to comparable node: \n" + str(bfspath) \
-                                + "\nAre the paths exactly the same? \n" + "(DFS)" + str(dfspath) + "\n=?\n" + "(BFS)" + str(bfspath) \
-                                + "\nResult: "
-                        if dfspath == bfspath:
-                            message2 += "True"
-                        else: 
-                            message2 += "False"
+                    # if node_B in dfs and node_B in bfs: #REVISE
+                    dfsendnodeindex = dfs.index(node_B)
+                    bfsendnodeindex = bfs.index(node_B)
+                    dfspath = dfs[:dfsendnodeindex]
+                    message2 += "\n(DFS)Connected Components from start node to comparable node: \n" + str(dfspath)
+                    bfspath = bfs[:bfsendnodeindex]
+                    message2 += "\n(BFS)Connected Components from start node to comparable node: \n" + str(bfspath) \
+                            + "\nAre the paths exactly the same? \n" + "(DFS)" + str(dfspath) + "\n=?\n" + "(BFS)" + str(bfspath) \
+                            + "\nResult: "
+                    if dfspath == bfspath:
+                        message2 += "True"
                     else: 
-                        message2 += "\nTest"
-                        print("Test") #task1file.write("\nNo path exists between " + str(nodeA) + " and " + str(i)) 
+                        message2 += "False"
+                    # else: 
+                    #     message2 += "\nTest"
+                    #     print("Test") #task1file.write("\nNo path exists between " + str(node_A) + " and " + str(i)) 
                     print(message2)
                     addToDoc(document,text=message2,addparagraph=True)
                     document.add_page_break()     
@@ -641,7 +646,7 @@ def task2(document):
     #temp file for graphs
     tmpFile = "graph.png"
     # move on message
-    pressAnyKey = "\n\n" + task + "graph\n\n" + "\n---PRESS ANY KEY TO MOVE ON!---\n\n"
+    #pressAnyKey = "\n\n" + task + "graph\n\n" + "\n---PRESS ANY KEY TO MOVE ON!---\n\n"
     # questions
     question1 = "\n\nQUESTION:\nUse an application to find the strongly connected components of the digraph.\n\n"
     question2 = "\n\nQUESTION:\nDraw the digraph as a 'meta graph' of its strongly connected components in the report.\n\n"
@@ -700,7 +705,7 @@ def task2(document):
     addToDoc(document,text=question1,addparagraph=True)
     task = "task 2 question 1"
     # generate undirected graph 
-    generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True,is_directed=True)
+    generateGraph(G,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
 
     document.add_page_break()
 
@@ -729,11 +734,12 @@ def task2(document):
 
     task = "task 2 question 2"
     # generate undirected graph 
-    generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True,is_directed=True)
+    generateGraph(G,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
 
     document.add_page_break()
 
     # Draw the digraph as a 'meta graph' of its strongly connected components in the report
+    
     #ask if the user wants to compare the graphs, or just view it later in the file
     view,answerQuestion = viewGraphs()
 
@@ -743,7 +749,7 @@ def task2(document):
         message1 = "Digraph as a meta-graph of its strongly connected components"
         print(message1)
         addToDoc(document,text=message1,addparagraph=True)
-        generateGraph(meta_graph,pos,tmpFile,document,task,pressAnyKey,mainIllustration=False,wouldLikeToViewGraphs=True,is_directed=True)
+        generateGraph(meta_graph,pos,tmpFile,document,task,mainIllustration=False,wouldLikeToViewGraphs=True)
         document.add_page_break()
     
     #
@@ -755,11 +761,12 @@ def task2(document):
 
     task = "task 2 question 3"
     # generate undirected graph 
-    generateGraph(G,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True,is_directed=True)
+    generateGraph(G,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
 
     document.add_page_break()
 
     # Represent the 'meta graph' as a DAG and linearize it in its topological order
+
     #ask if the user wants to compare the graphs, or just view it later in the file
     view,answerQuestion = viewGraphs()
 
@@ -770,7 +777,7 @@ def task2(document):
         message1 = "Meta-graph as a DAG, linearized in its topological order"
         print(message1)
         addToDoc(document,text=message1,addparagraph=True)
-        generateGraph(DAGgraph,pos,tmpFile,document,task,pressAnyKey,mainIllustration=False,wouldLikeToViewGraphs=True,is_directed=True)
+        generateGraph(DAGgraph,pos,tmpFile,document,task,mainIllustration=False,wouldLikeToViewGraphs=True)
         document.add_page_break() 
 
 
@@ -780,10 +787,10 @@ def task3(document):
     #temp file for graphs
     tmpFile = "graph.png"
     # move on message
-    pressAnyKey = "\n\n" + task + "graph\n\n" + "\n---PRESS ANY KEY TO MOVE ON!---\n\n"
+    #pressAnyKey = "\n\n" + task + "graph\n\n" + "\n---PRESS ANY KEY TO MOVE ON!---\n\n"
     # questions
-    question1 = "\n\nQUESTION:\nWrite an application that applies Dijkstra’s algorithm to produce the shortest path tree for \
-                a weighted graph with a given starting node. Test and verify your program with the given graph starting with node A\n\n"
+    question1 = "\n\nQUESTION:\nWrite an application that applies Dijkstra’s algorithm to produce the shortest path tree for" + \
+                " a weighted graph with a given starting node. Test and verify your program with the given graph starting with node A\n\n"
     question2 = "\n\nQUESTION:\nWrite a program that produces a minimum spanning tree for a connected weighted graph.\n\n"
     question3 = "\n\nQUESTION:\nAre a shortest path tree and a minimum spanning tree usually the same?\n\n"
     question4 = "\n\nQUESTION:\nIf the graph has an edge with a negative weight, can you apply Dijkstra's algorithm to find a shortest path tree?\n\n"
@@ -832,7 +839,7 @@ def task3(document):
     addToDoc(document,text=question1,addparagraph=True)
     task = "task 3 question 1"
     # generate undirected graph 
-    generateGraph(G_weighted_undirected,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True)
+    generateGraph(G_weighted_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
 
     document.add_page_break()
 
@@ -861,12 +868,12 @@ def task3(document):
     #
     # ######################### --------------- QUESTION 2 ---------------#########################  #
     # 
-    print(question1)
+    print(question2)
     # add question to document
-    addToDoc(document,text=question1,addparagraph=True)
+    addToDoc(document,text=question2,addparagraph=True)
     task = "task 3 question 2"
     # generate undirected graph 
-    generateGraph(G_weighted_undirected,pos,tmpFile,document,task,pressAnyKey,mainIllustration=True,wouldLikeToViewGraphs=True)
+    generateGraph(G_weighted_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
 
     document.add_page_break()
 
@@ -876,8 +883,53 @@ def task3(document):
     view,answerQuestion = viewGraphs()     
 
     if answerQuestion:
-    
+        mst = nx.minimum_spanning_tree(G_weighted_undirected,weight='weight',algorithm='kruskal')
+        edges = mst.edges()
+        #message1 
+        message1 = "Minimum Spanning Tree using Kruskal's algorithm\n" + "Edges: \n" + str(edges) + "\nGraph: "
+        print(message1)
+        addToDoc(document,text=message1,addparagraph=True)
+        generateGraph(mst,pos,tmpFile,document,task,mainIllustration=False,wouldLikeToViewGraphs=True)
+        document.add_page_break()
 
+    #
+    # ######################### --------------- QUESTION 3 ---------------#########################  #
+    # 
+    print(question3)
+    # add question to document
+    addToDoc(document,text=question3,addparagraph=True)
+
+    task = "task 3 question 3"
+    # generate undirected graph 
+    generateGraph(G_weighted_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
+
+    document.add_page_break()
+
+    # Are a shortest path tree and a minimum spanning tree usually the same?
+
+    #ask if the user wants to compare the graphs, or just view it later in the file
+    view,answerQuestion = viewGraphs()
+
+    if answerQuestion:
+        print("Not implemented")
+
+    #
+    # ######################### --------------- QUESTION 4 ---------------#########################  #
+    # 
+    print(question4)
+    # add question to document
+    addToDoc(document,text=question4,addparagraph=True)
+
+    task = "task 3 question 3"
+    # generate undirected graph 
+    generateGraph(G_weighted_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
+
+    document.add_page_break()
+
+    # If the graph has an edge with a negative weight, can you apply Dijkstra's algorithm to find a shortest path tree?
+
+    #ask if the user wants to compare the graphs, or just view it later in the file
+    view,answerQuestion = viewGraphs()
 
     
     
@@ -942,9 +994,9 @@ def main():
             except:
                 filename = "Task Results(" + str(i) +").docx"
                 i += 1
-        # remove png files
+        # remove graph.png files
         for file in os.listdir("."):
-            if file.endswith(".png"):
+            if file.endswith("graph.png"):
                 os.remove(file)
         if i>1:
             print("\n\nYou had a similar file name opened, so another is going to be created with (" + str(i-1)+") in the filename.")
