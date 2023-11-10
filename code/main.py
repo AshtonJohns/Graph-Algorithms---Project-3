@@ -19,7 +19,7 @@ def addToDoc(document,task="",text="",tmpFile="",addparagraph=False,addFigure=Fa
         document.add_heading(task + " graph",level=1)
         document.add_picture(tmpFile)
 
-def generateGraph(G,pos,tmpFile,document,task,mainIllustration=False,wouldLikeToViewGraphs=True,node_size=1000,x=3,y=3): #genereate all kinds of graphs
+def generateGraph(G,pos,tmpFile,document,task,answer='',mainIllustration=False,wouldLikeToViewGraphs=True,node_size=1000,x=3,y=3): #genereate all kinds of graphs
     if mainIllustration:
         if task.startswith("task 2"): #directed
             nx.draw(G,pos=pos,with_labels=True,node_color="red",font_color="white",font_size=15,font_family="Times New Roman", font_weight="bold",width=3,edge_color="black")
@@ -34,7 +34,7 @@ def generateGraph(G,pos,tmpFile,document,task,mainIllustration=False,wouldLikeTo
         # add figure to document
         addToDoc(document,task=task,tmpFile=tmpFile,addFigure=True)
     elif not mainIllustration and task.startswith("task 2"): #task 2 graphs
-        if task.startswith("task 2 question 3"):
+        if answer.startswith("answer graph question 3"):
             nx.draw(G,pos=pos,node_size=700,with_labels=True,width=3,connectionstyle='arc3, rad=0.5') #connectionstyle allows for the directed edges to be curved for viewing purposes
         else:
             nx.draw_networkx(G,node_size=node_size,width=3)
@@ -42,8 +42,14 @@ def generateGraph(G,pos,tmpFile,document,task,mainIllustration=False,wouldLikeTo
         plt.savefig(tmpFile)
         addToDoc(document,task=task,tmpFile=tmpFile,addFigure=True)
     elif not mainIllustration and task.startswith("task 3"): #task 3 graphs
-        if task.startswith("task 3 question 2"):
+        if answer.startswith("answer graph question 2"):
             nx.draw(G,pos=pos,node_size=700,with_labels=True,width=3)
+        elif answer.startswith("answer graph question 1"):
+            edges = G.edges()
+            colors = [G[u][v]['color'] for u,v in edges] #get the color for each edge
+            #weights = [G[u][v]['weight'] for u,v in edges]
+            nx.draw(G, pos, edge_color=colors, width=2,with_labels=True) #assign the correct colors to each of the edges (regular paths will be black, spt paths will be red)
+            nx.draw_networkx_edge_labels(G,pos=pos,edge_labels=nx.get_edge_attributes(G, 'weight')) # assign the weights to each edge
         plt.margins(0.2)
         plt.savefig(tmpFile)
         addToDoc(document,task=task,tmpFile=tmpFile,addFigure=True)
@@ -209,28 +215,6 @@ def task1(document):
     question3 = "\n\nQUESTION:\nProvided that there is a path between two vertices u and v in the graph. If started from u, do DFS and BFS always find exactly the same path to v?\n\n"
     #create graph
     G=nx.Graph()
-    # undirected graph 1
-    # G_undirected_edges = [["A","B"],
-    #                       ["B","C"],
-    #                       ["C","D"],
-    #                       ["A","E"],
-    #                       ["A","F"],
-    #                       ["B","F"],
-    #                       ["C","G"],
-    #                       ["D","G"],
-    #                       ["E","F"],
-    #                       ["E","I"],
-    #                       ["F","I"],
-    #                       ["H","K"],
-    #                       ["H","L"],
-    #                       ["G","J"],
-    #                       ["I","J"],
-    #                       ["K","L"],
-    #                       ["I","M"],
-    #                       ["K","O"],
-    #                       ["L","P"],
-    #                       ["M","N"]
-    #                      ]
 
     G_undirected_edges = [("A", "B"),
                           ("A", "F"),
@@ -254,26 +238,6 @@ def task1(document):
                         ("L", "P")]
     #add edges
     G.add_edges_from(G_undirected_edges)
-    # G.add_edge("A","B")
-    # G.add_edge("B","C")
-    # G.add_edge("C","D")
-    # G.add_edge("A","E")
-    # G.add_edge("A","F")
-    # G.add_edge("B","F")
-    # G.add_edge("C","G")
-    # G.add_edge("D","G")
-    # G.add_edge("E","F")
-    # G.add_edge("E","I")
-    # G.add_edge("F","I")
-    # G.add_edge("H","K")
-    # G.add_edge("H","L")
-    # G.add_edge("G","J")
-    # G.add_edge("I","J")
-    # G.add_edge("K","L")
-    # G.add_edge("I","M")
-    # G.add_edge("K","O")
-    # G.add_edge("L","P")
-    # G.add_edge("M","N")
 
     G_undirected = G.to_undirected()
 
@@ -355,7 +319,7 @@ def task1(document):
             document.add_page_break()
 
 
-
+            #REVISE : not used!
             # #list for storing results for DFS & BFS
             # dfs = []
             # bfs = []
@@ -443,7 +407,8 @@ def task1(document):
                     print(message4)
                     addToDoc(document,text=message4,addparagraph=True)
             document.add_page_break()
-
+            
+    #REVISE : not used!
     # if answerQuestion:
     #     for node in G_undirected.nodes():
     #         dfs_for_undirected = []
@@ -558,7 +523,7 @@ def task1(document):
                     addToDoc(document,text=message2,addparagraph=True)
                     document.add_page_break()     
 
-
+    #REVISE : not used!
     # if answerQuestion:
     #     for node in G_undirected.nodes():
     #         #list for storing results for DFS & BFS
@@ -736,7 +701,8 @@ def task2(document):
         message1 = "Digraph as a meta-graph of its strongly connected components"
         print(message1)
         addToDoc(document,text=message1,addparagraph=True)
-        generateGraph(meta_graph,pos,tmpFile,document,task,mainIllustration=False,wouldLikeToViewGraphs=True)
+        answer = "answer graph question 2"
+        generateGraph(meta_graph,pos,tmpFile,document,task,answer=answer,mainIllustration=False,wouldLikeToViewGraphs=True)
         document.add_page_break()
     
     #
@@ -763,7 +729,8 @@ def task2(document):
         message1 = "Meta-graph as a DAG, linearized in its topological order"
         print(message1)
         addToDoc(document,text=message1,addparagraph=True)
-        generateGraph(DAGgraph,pos,tmpFile,document,task,mainIllustration=False,wouldLikeToViewGraphs=True)
+        answer = "answer graph question 3"
+        generateGraph(DAGgraph,pos,tmpFile,document,task,answer=answer,mainIllustration=False,wouldLikeToViewGraphs=True)
         document.add_page_break() 
 
 
@@ -784,24 +751,24 @@ def task3(document):
 
     G_weighted_undirected = nx.Graph()
 
-    G_weighted_undirected.add_edge("A", "B",weight=22)
-    G_weighted_undirected.add_edge("A","C",weight=9)
-    G_weighted_undirected.add_edge("A","D",weight=12)
-    G_weighted_undirected.add_edge("B","F",weight=36)
-    G_weighted_undirected.add_edge("C","B",weight=35)
-    G_weighted_undirected.add_edge("C","D",weight=4)
-    G_weighted_undirected.add_edge("C","E",weight=65)
-    G_weighted_undirected.add_edge("C","F",weight=42)
-    G_weighted_undirected.add_edge("D","E",weight=33)
-    G_weighted_undirected.add_edge("E","G",weight=23)
-    G_weighted_undirected.add_edge("E","F",weight=18)
-    G_weighted_undirected.add_edge("F","G",weight=39)
-    G_weighted_undirected.add_edge("B","H",weight=34)
-    G_weighted_undirected.add_edge("D","I",weight=30)
-    G_weighted_undirected.add_edge("H","I",weight=19)
-    G_weighted_undirected.add_edge("F","H",weight=24)
-    G_weighted_undirected.add_edge("G","I",weight=21)
-    G_weighted_undirected.add_edge("G","H",weight=25)
+    G_weighted_undirected.add_edge("A","B",weight=22,color='black')
+    G_weighted_undirected.add_edge("A","C",weight=9,color='black')
+    G_weighted_undirected.add_edge("A","D",weight=12,color='black')
+    G_weighted_undirected.add_edge("B","F",weight=36,color='black')
+    G_weighted_undirected.add_edge("C","B",weight=35,color='black')
+    G_weighted_undirected.add_edge("C","D",weight=4,color='black')
+    G_weighted_undirected.add_edge("C","E",weight=65,color='black')
+    G_weighted_undirected.add_edge("C","F",weight=42,color='black')
+    G_weighted_undirected.add_edge("D","E",weight=33,color='black')
+    G_weighted_undirected.add_edge("E","G",weight=23,color='black')
+    G_weighted_undirected.add_edge("E","F",weight=18,color='black')
+    G_weighted_undirected.add_edge("F","G",weight=39,color='black')
+    G_weighted_undirected.add_edge("B","H",weight=34,color='black')
+    G_weighted_undirected.add_edge("D","I",weight=30,color='black')
+    G_weighted_undirected.add_edge("H","I",weight=19,color='black')
+    G_weighted_undirected.add_edge("F","H",weight=24,color='black')
+    G_weighted_undirected.add_edge("G","I",weight=21,color='black')
+    G_weighted_undirected.add_edge("G","H",weight=25,color='black')
 
 
     pos={ # positions for nodes
@@ -835,21 +802,39 @@ def task3(document):
     view,answerQuestion = viewGraphs()     
 
     if answerQuestion:
-        
+        answer = "answer graph question 1"
         start_node = "A"
+        path_edge_color = 'red'
         nodes = G_weighted_undirected.nodes()
         spt = nx.single_source_dijkstra_path(G_weighted_undirected,start_node,weight='weight')
         #message1
-        message1 = "Nodes: \n" + str(nodes) + "\nDijkstra's algorithm found the shortest path tree:\n"
-        for x,value in spt.items():
-            message1 += "Shortest path from " + start_node + " to " + x + ":\n"
+        #message1 = "Nodes: \n" + str(nodes) + "\nDijkstra's algorithm found the shortest path tree:\n"
+        for key,value in spt.items():
+            message1 = "Dijkstra's algorithm found the shortest path from " + start_node + " to " + key + ":\n"
             message1 += str(value) + "\n"
-        print(message1)
-        # add question to document
-        addToDoc(document,text=message1,addparagraph=True)
-        document.add_page_break()
+            message1 += "\nShortest path tree: \n"
+            G_s = G_weighted_undirected.copy()
+            
+            if len(value) == 2:
+                edges_data = G_s.get_edge_data(value[0],value[1])
+                G_s.add_edge(value[0],value[1],color=path_edge_color,weight=edges_data.get('weight'))
 
-
+            elif len(value) > 2:
+                for x in range(len(value)):
+                    if not value[-2].__eq__(value[-3]):
+                        index = value.index(value[x+x+1])
+                        value.insert(index+1,value[x+x+1])
+                #convert to 2d
+                edges_2d_list = np.array(value).reshape((len(value))//2,2)
+                for x in range(len(edges_2d_list)):
+                    edges_data = G_s.get_edge_data(edges_2d_list[x][0],edges_2d_list[x][1])
+                    G_s.add_edge(edges_2d_list[x][0],edges_2d_list[x][1],color=path_edge_color,weight=edges_data.get('weight'))
+            # add question to document and generate graph
+            print(message1)
+            addToDoc(document,text=message1,addparagraph=True)
+            generateGraph(G_s,pos,tmpFile,document,task,answer=answer,mainIllustration=False,wouldLikeToViewGraphs=True)
+            document.add_page_break()
+        
     #
     # ######################### --------------- QUESTION 2 ---------------#########################  #
     # 
@@ -867,13 +852,14 @@ def task3(document):
     view,answerQuestion = viewGraphs()     
 
     if answerQuestion:
+        answer = "answer graph question 2"
         mst = nx.minimum_spanning_tree(G_weighted_undirected,weight='weight',algorithm='kruskal')
         edges = mst.edges()
         #message1 
         message1 = "Minimum Spanning Tree using Kruskal's algorithm\n" + "Edges: \n" + str(edges) + "\nGraph: "
         print(message1)
         addToDoc(document,text=message1,addparagraph=True)
-        generateGraph(mst,pos,tmpFile,document,task,mainIllustration=False,wouldLikeToViewGraphs=True)
+        generateGraph(mst,pos,tmpFile,document,task,answer=answer,mainIllustration=False,wouldLikeToViewGraphs=True)
         document.add_page_break()
 
     #
@@ -910,7 +896,12 @@ def task3(document):
 
     #ask if the user wants to compare the graphs, or just view it later in the file
     view,answerQuestion = viewGraphs()
+    
+    if answerQuestion:
+        G_copy = G_weighted_undirected.copy()
+        G_copy.add_edge("A","B",weight=-22,color='black')
 
+    
     
     
 
