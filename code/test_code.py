@@ -181,25 +181,24 @@ G.add_edges_from(task2graphedges)
 
 G_weighted_undirected = nx.Graph()
 
-G_weighted_undirected.add_edge("A", "B",weight=22,color='g')
-G_weighted_undirected.add_edge("A","C",weight=9,color='g')
-G_weighted_undirected.add_edge("A","D",weight=12,color='g')
-G_weighted_undirected.add_edge("B","F",weight=36,color='g')
-G_weighted_undirected.add_edge("C","B",weight=35,color='g')
-G_weighted_undirected.add_edge("C","D",weight=4,color='g')
-G_weighted_undirected.add_edge("C","E",weight=65,color='g')
-G_weighted_undirected.add_edge("C","F",weight=42,color='g')
-G_weighted_undirected.add_edge("D","E",weight=33,color='g')
-G_weighted_undirected.add_edge("E","G",weight=23,color='g')
-G_weighted_undirected.add_edge("E","F",weight=18,color='g')
-G_weighted_undirected.add_edge("F","G",weight=39,color='g')
-G_weighted_undirected.add_edge("B","H",weight=34,color='g')
-G_weighted_undirected.add_edge("D","I",weight=30,color='g')
-G_weighted_undirected.add_edge("H","I",weight=19,color='g')
-G_weighted_undirected.add_edge("F","H",weight=24,color='g')
-G_weighted_undirected.add_edge("G","I",weight=21,color='g')
-G_weighted_undirected.add_edge("G","H",weight=25,color='g')
-
+G_weighted_undirected.add_edge("A","B",weight=22,color='black')
+G_weighted_undirected.add_edge("A","C",weight=9,color='black')
+G_weighted_undirected.add_edge("A","D",weight=12,color='black')
+G_weighted_undirected.add_edge("B","F",weight=36,color='black')
+G_weighted_undirected.add_edge("C","B",weight=35,color='black')
+G_weighted_undirected.add_edge("C","D",weight=4,color='black')
+G_weighted_undirected.add_edge("C","E",weight=65,color='black')
+G_weighted_undirected.add_edge("C","F",weight=42,color='black')
+G_weighted_undirected.add_edge("D","E",weight=33,color='black')
+G_weighted_undirected.add_edge("E","G",weight=23,color='black')
+G_weighted_undirected.add_edge("E","F",weight=18,color='black')
+G_weighted_undirected.add_edge("F","G",weight=39,color='black')
+G_weighted_undirected.add_edge("B","H",weight=34,color='black')
+G_weighted_undirected.add_edge("D","I",weight=30,color='black')
+G_weighted_undirected.add_edge("H","I",weight=19,color='black')
+G_weighted_undirected.add_edge("F","H",weight=24,color='black')
+G_weighted_undirected.add_edge("G","I",weight=21,color='black')
+G_weighted_undirected.add_edge("G","H",weight=25,color='black')
 
 pos={ # positions for nodes
     
@@ -232,27 +231,69 @@ pos={ # positions for nodes
 
 # nodes = G_weighted_undirected.nodes()
 
-start_node = "A"
+# start_node = "A"
 
-spt = nx.single_source_dijkstra_path(G_weighted_undirected,start_node,weight='weight')
+# spt = nx.single_source_dijkstra_path(G_weighted_undirected,start_node,weight='weight')
 
-G_copy = G_weighted_undirected.copy()
+# G_copy = G_weighted_undirected.copy()
 
-G_copy.add_edge("A","B",color='red',weight=100)
+# nodes = G_copy.nodes
 
-edges = G_copy.edges()
-colors = [G_copy[u][v]['color'] for u,v in edges]
-weights = [G_copy[u][v]['weight'] for u,v in edges]
+# test_map = {'weight': 22, 'color': 'g'}
+
+# print(test_map.get('weight'))
+
+# path_edge_color = 'red'
+
+# for key,value in spt.items():
+#     do_changes = False
+#     G_s = G_weighted_undirected.copy()
+    
+#     if len(value) == 2:
+#         edges_data = G_s.get_edge_data(value[0],value[1])
+#         G_s.add_edge(value[0],value[1],color=path_edge_color,weight=edges_data.get('weight'))
+
+#     elif len(value) > 2:
+#         for x in range(len(value)):
+#             if not value[-2].__eq__(value[-3]):
+#                 index = value.index(value[x+x+1])
+#                 value.insert(index+1,value[x+x+1])
+#         #convert to 2d
+#         dfs_to_2d = np.array(value).reshape((len(value))//2,2)
+#         for x in range(len(dfs_to_2d)):
+#             edges_data = G_s.get_edge_data(dfs_to_2d[x][0],dfs_to_2d[x][1])
+#             G_s.add_edge(dfs_to_2d[x][0],dfs_to_2d[x][1],color=path_edge_color,weight=edges_data.get('weight'))
+          
+#     edges = G_s.edges()
+#     colors = [G_s[u][v]['color'] for u,v in edges]
+#     weights = [G_s[u][v]['weight'] for u,v in edges]
+#     nx.draw(G_s, pos, edge_color=colors, width=2,with_labels=True)
+#     nx.draw_networkx_edge_labels(G_s,pos=pos,edge_labels=nx.get_edge_attributes(G_s, 'weight'))
+#     plt.show()
+#     # elif len(value) % 2 ==0:
+
+
+# edges_data = G_copy.get_edge_data("A","B")
+
+# print(nodes)
+# print(edges_data)
+
+# G_copy.add_edge("A","B",color='red',weight=100)
+
+# edges = G_copy.edges()
+# colors = [G_copy[u][v]['color'] for u,v in edges]
+# weights = [G_copy[u][v]['weight'] for u,v in edges]
+
 
 # for key,value in spt.items():
 #     G_a_lot = G.copy()
 #     G.add_edge()
 
 
-nx.draw(G_copy, pos, edge_color=colors, width=2,with_labels=True)
+# nx.draw(G_copy, pos, edge_color=colors, width=2,with_labels=True)
 
-nx.draw_networkx_edge_labels(G_copy,pos=pos,edge_labels=nx.get_edge_attributes(G_copy, 'weight'))
-plt.show()
+# nx.draw_networkx_edge_labels(G_copy,pos=pos,edge_labels=nx.get_edge_attributes(G_copy, 'weight'))
+# plt.show()
 
 
 
@@ -268,3 +309,11 @@ plt.show()
 
 # nx.draw(spt,pos=pos,node_size=700,with_labels=True,width=3)
 # plt.show()
+
+neg_number = -12
+number = 10
+
+if neg_number < 10:
+    print("-12 is less than 10")
+
+print(neg_number)
