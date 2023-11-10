@@ -66,31 +66,31 @@ import networkx as nx
 # Create a 2D NumPy array
 
 
-# G=nx.DiGraph()
+G=nx.DiGraph()
     
-# task2graphedges = [(1,3),
-#                     (3,2),
-#                     (3,5),
-#                     (2,1),
-#                     (4,1),
-#                     (4,2),
-#                     (4,12),
-#                     (5,6),
-#                     (5,8),
-#                     (6,8),
-#                     (6,7),
-#                     (8,9),
-#                     (9,5),
-#                     (9,11),
-#                     (8,10),
-#                     (10,9),
-#                     (6,10),
-#                     (7,10),
-#                     (10,11),
-#                     (11,12)]
-#     #add edges
+task2graphedges = [(1,3),
+                    (3,2),
+                    (3,5),
+                    (2,1),
+                    (4,1),
+                    (4,2),
+                    (4,12),
+                    (5,6),
+                    (5,8),
+                    (6,8),
+                    (6,7),
+                    (8,9),
+                    (9,5),
+                    (9,11),
+                    (8,10),
+                    (10,9),
+                    (6,10),
+                    (7,10),
+                    (10,11),
+                    (11,12)]
+    #add edges
 
-# G.add_edges_from(task2graphedges)
+G.add_edges_from(task2graphedges)
 
 # # scc = max(nx.strongly_connected_components(G), key=len)
 
@@ -181,24 +181,24 @@ import networkx as nx
 
 G_weighted_undirected = nx.Graph()
 
-G_weighted_undirected.add_edge("A", "B",weight=22)
-G_weighted_undirected.add_edge("A","C",weight=9)
-G_weighted_undirected.add_edge("A","D",weight=12)
-G_weighted_undirected.add_edge("B","F",weight=36)
-G_weighted_undirected.add_edge("C","B",weight=35)
-G_weighted_undirected.add_edge("C","D",weight=4)
-G_weighted_undirected.add_edge("C","E",weight=65)
-G_weighted_undirected.add_edge("C","F",weight=42)
-G_weighted_undirected.add_edge("D","E",weight=33)
-G_weighted_undirected.add_edge("E","G",weight=23)
-G_weighted_undirected.add_edge("E","F",weight=18)
-G_weighted_undirected.add_edge("F","G",weight=39)
-G_weighted_undirected.add_edge("B","H",weight=34)
-G_weighted_undirected.add_edge("D","I",weight=30)
-G_weighted_undirected.add_edge("H","I",weight=19)
-G_weighted_undirected.add_edge("F","H",weight=24)
-G_weighted_undirected.add_edge("G","I",weight=21)
-G_weighted_undirected.add_edge("G","H",weight=25)
+G_weighted_undirected.add_edge("A", "B",weight=22,color='g')
+G_weighted_undirected.add_edge("A","C",weight=9,color='g')
+G_weighted_undirected.add_edge("A","D",weight=12,color='g')
+G_weighted_undirected.add_edge("B","F",weight=36,color='g')
+G_weighted_undirected.add_edge("C","B",weight=35,color='g')
+G_weighted_undirected.add_edge("C","D",weight=4,color='g')
+G_weighted_undirected.add_edge("C","E",weight=65,color='g')
+G_weighted_undirected.add_edge("C","F",weight=42,color='g')
+G_weighted_undirected.add_edge("D","E",weight=33,color='g')
+G_weighted_undirected.add_edge("E","G",weight=23,color='g')
+G_weighted_undirected.add_edge("E","F",weight=18,color='g')
+G_weighted_undirected.add_edge("F","G",weight=39,color='g')
+G_weighted_undirected.add_edge("B","H",weight=34,color='g')
+G_weighted_undirected.add_edge("D","I",weight=30,color='g')
+G_weighted_undirected.add_edge("H","I",weight=19,color='g')
+G_weighted_undirected.add_edge("F","H",weight=24,color='g')
+G_weighted_undirected.add_edge("G","I",weight=21,color='g')
+G_weighted_undirected.add_edge("G","H",weight=25,color='g')
 
 
 pos={ # positions for nodes
@@ -230,56 +230,29 @@ pos={ # positions for nodes
 #mstPath = nx.minimum_branching(G_weighted_undirected,attr='weight')
 # edgelist = list(mstPath)
 
-nodes = G_weighted_undirected.nodes()
+# nodes = G_weighted_undirected.nodes()
 
-spt = nx.shortest_path(G_weighted_undirected,weight='weight',method="dijkstra")
+start_node = "A"
 
-spt = nx.shortest
+spt = nx.single_source_dijkstra_path(G_weighted_undirected,start_node,weight='weight')
 
-# dms = nx.multi_source_dijkstra(G_weighted_undirected,weight='weight',sources=nodes)
+G_copy = G_weighted_undirected.copy()
 
-mst = nx.minimum_spanning_tree(G_weighted_undirected,weight='weight',algorithm='kruskal')
+G_copy.add_edge("A","B",color='red',weight=100)
 
-mstEdges = mst.edges()
-mstNodes = mst.nodes.data()
+edges = G_copy.edges()
+colors = [G_copy[u][v]['color'] for u,v in edges]
+weights = [G_copy[u][v]['weight'] for u,v in edges]
 
-
-print(mstEdges)
-print(mstNodes)
-
-# print(spt)
-# print(edgelist)
-
-print("\nspt\n")
-print(type(spt))
-for x,value in spt.items():
-    print(x)
-    print(value)
-
-# print("\ndms\n")
-# print(type(dms))
-# for x,value in dms.items():
-#     print(x)
-#     print(value)
-
-# print("mst")
-# print(mstPath)
-# for x in mstPath:
-#     print(x)
-
-# print(dms)
-
-test_G = nx.Graph()
-#test_G.add_edges_from(mstPath)
-
-test_G2 = nx.Graph()
-
-# test_G2.add_edges_from(dms)
+# for key,value in spt.items():
+#     G_a_lot = G.copy()
+#     G.add_edge()
 
 
+nx.draw(G_copy, pos, edge_color=colors, width=2,with_labels=True)
 
-nx.draw(test_G2,pos=pos,node_size=700,with_labels=True,width=3)
-# plt.show()
+nx.draw_networkx_edge_labels(G_copy,pos=pos,edge_labels=nx.get_edge_attributes(G_copy, 'weight'))
+plt.show()
 
 
 
