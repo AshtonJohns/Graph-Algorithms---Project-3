@@ -222,21 +222,29 @@ pos={ # positions for nodes
 
 # print(message)
 
+# spt = nx.dijkstra_path(G_weighted_undirected,"A",)
+
+# exit()
+
 G_error_prone = G_weighted_undirected.copy()
 
 G_error_prone.add_edge("G","I",weight=-21,color='black')
 
+G_error_prone.add_edge("A","D",weight=-12,color='black')
+
 start_node = "A"
 
 try:
-    spt = nx.single_source_dijkstra_path(G_error_prone,start_node,weight='weight')
-    nx.draw(spt,pos=pos,node_size=700,with_labels=True,width=3)
+    spt = nx.dijkstra_path(G_error_prone,start_node,target="G",weight='weight')
+    # nx.draw(spt,pos=pos,node_size=700,with_labels=True,width=3)
+    print(spt)
+    plt.show()
 except ValueError as e:
     # print(e.with_traceback())
     message = e
     print()
 
-print(str(message))
+# print(str(message))
 exit()
 
 mst = nx.minimum_spanning_tree(G_weighted_undirected,weight='weight',algorithm="kruskal")
