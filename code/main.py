@@ -205,14 +205,45 @@ def createDAG(G):
         i += 2.5
     return testter,pos #returns DAG and positions for the nodes
 
-def generateGraphForSPT(document,G_weighted_undirected,pos,task,answer,tmpFile,start_node,viewGraph=True,affectDocument=True):
+def generateGraphForSPT(document,G_weighted_undirected,pos,task,answer,tmpFile,start_node,viewGraph=True,affectDocument=True,target_node=''):
     path_edge_color = 'red'
     nodes = G_weighted_undirected.nodes()
-    spt = nx.single_source_dijkstra_path(G_weighted_undirected,start_node,weight='weight')
-    #message1
-    #message1 = "Nodes: \n" + str(nodes) + "\nDijkstra's algorithm found the shortest path tree:\n"
-    for key,value in spt.items():
-        message1 = "Dijkstra's algorithm found the shortest path from " + start_node + " to " + key + ":\n"
+
+    if task.__eq__("task 3 question 1") or task.__eq__("task 3 question 3"):
+        spt = nx.single_source_dijkstra_path(G_weighted_undirected,start_node,weight='weight')
+
+        for key,value in spt.items():
+            message1 = "Dijkstra's algorithm found the shortest path from " + start_node + " to " + key + ":\n"
+            message1 += str(value) + "\n"
+            message1 += "\nShortest path tree: \n"
+            G_s = G_weighted_undirected.copy()
+            
+            if len(value) == 2:
+                edges_data = G_s.get_edge_data(value[0],value[1])
+                G_s.add_edge(value[0],value[1],color=path_edge_color,weight=edges_data.get('weight'))
+
+            elif len(value) > 2:
+                for x in range(len(value)):
+                    if not value[-2].__eq__(value[-3]):
+                        index = value.index(value[x+x+1])
+                        value.insert(index+1,value[x+x+1])
+                #convert to 2d
+                edges_2d_list = np.array(value).reshape((len(value))//2,2)
+                for x in range(len(edges_2d_list)):
+                    edges_data = G_s.get_edge_data(edges_2d_list[x][0],edges_2d_list[x][1])
+                    G_s.add_edge(edges_2d_list[x][0],edges_2d_list[x][1],color=path_edge_color,weight=edges_data.get('weight'))
+            # add question to document and generate graph
+            if affectDocument:
+                print(message1)
+                addToDoc(document,text=message1,addparagraph=True)
+                generateGraph(G_s,pos,tmpFile,document,task,answer=answer,mainIllustration=False,wouldLikeToViewGraphs=viewGraph)
+                document.add_page_break()
+    elif task.__eq__("task 3 question 4"):
+        spt = nx.dijkstra_path(G_weighted_undirected,start_node,target=target_node,weight='weight')
+
+        value = spt
+
+        message1 = "Dijkstra's algorithm found the shortest path from " + start_node + " to " + target_node + ":\n"
         message1 += str(value) + "\n"
         message1 += "\nShortest path tree: \n"
         G_s = G_weighted_undirected.copy()
@@ -236,7 +267,6 @@ def generateGraphForSPT(document,G_weighted_undirected,pos,task,answer,tmpFile,s
             print(message1)
             addToDoc(document,text=message1,addparagraph=True)
             generateGraph(G_s,pos,tmpFile,document,task,answer=answer,mainIllustration=False,wouldLikeToViewGraphs=viewGraph)
-            document.add_page_break()
     
     return G_s #graph object
 
@@ -930,7 +960,8 @@ def task3(document):
         G_mst = generateGraphForMST(document,G_weighted_undirected,pos,task,answer,tmpFile,viewGraph=False,affectDocument=False)
         answer = "spt vs mst"
         generateGraphSideBySideForComparison(document,G_spt,G_mst,pos,task,tmpFile,operation,answer=answer,wouldLikeToViewGraphs=True)
-        message = "\nNo: \nSPT identifies a path to reach a destination using the shortest paths.\nMST finds the least weighted path connecting each node with no destination"
+        message = "\nNo: \nSPT identifies a path to reach a destination using the shortest path (with a given start node)."
+        message += "\nMST finds the least weighted path connecting each node with no destination" 
         addToDoc(document,text=message,addparagraph=True)
         document.add_page_break()
 
@@ -955,8 +986,13 @@ def task3(document):
         addToDoc(document,text=question4,addparagraph=True)
         document.add_page_break()
 
+        note = "\nCurrent graph: negative edge [I,G]"
+        print(note)
+        generateGraph(G_error_prone,pos,tmpFile,document,task,answer=note,mainIllustration=True,wouldLikeToViewGraphs=True)
         start_node = "A"
-        message ="If the graph has an edge with a negative weight, Dijkstra's algorithm cannot be applied to find spt\nValueError:\n"
+        message = "\nStart node: " + start_node + "\nEnd node: NONE GIVEN"
+        message +="\nIf the graph has an edge with a negative weight (ie., [I,G]), and provided with a start node and NO END NODE, and in that shortest path the negative edge is met," 
+        message += " then Dijkstra's algorithm cannot be applied to find spt\nValueError:\n"
         try:
             spt = nx.single_source_dijkstra_path(G_error_prone,start_node,weight='weight')
             nx.draw(spt,pos=pos,node_size=700,with_labels=True,width=3)
@@ -964,6 +1000,39 @@ def task3(document):
             # print(e.with_traceback())
             message += str(e) #error message in the document.. without traceback
         print(message)
+        addToDoc(document,text=message,addparagraph=True)
+        document.add_page_break()
+        
+        note = "\nCurrent graph: negative edge [I,G]"
+        print(note)
+        generateGraph(G_error_prone,pos,tmpFile,document,task,answer=note,mainIllustration=True,wouldLikeToViewGraphs=True)
+        message = "\nStart node: " + start_node + "\nTarget node: G"
+        message +="\nIf the graph has an edge with a negative weight (ie., [I,G]), and provided with a start node and END NODE, and in that shortest path the negative edge is met AT THE DESTINATION" 
+        message += " but the algorithm is told to stop at that destination, then Dijkstra's algorithm can be applied to find spt\n" 
+        answer = "Dijkstra’s algorithm: spt graph"
+        start_node = "A"
+        target_node = "G"
+        print(message)
+        generateGraphForSPT(document,G_error_prone,pos,task,answer,tmpFile,start_node,target_node=target_node)
+        addToDoc(document,text=message,addparagraph=True)
+        document.add_page_break()
+
+        note = "\nCurrent graph: negative edges [A,D],[I,G]"
+        print(note)
+        G_error_prone.add_edge("A","D",weight=-12,color='black')
+        generateGraph(G_error_prone,pos,tmpFile,document,task,answer=note,mainIllustration=True,wouldLikeToViewGraphs=True)
+        message = "\nStart node: " + start_node + "\nTarget node: G"
+        message +="\nIf the graph has edges with a negative weight (ie., [A,D], [I,G]), and provided with a start node and END NODE, and in that shortest path the negative edge is met BEFORE THE DESTINATION," 
+        message += " then Dijkstra's algorithm cannot be applied to find spt\nValueError:\n" 
+        answer = "Dijkstra’s algorithm: spt graph"
+        start_node = "A"
+        target_node = "G"
+        print(message)
+        try:
+            generateGraphForSPT(document,G_error_prone,pos,task,answer,tmpFile,start_node,target_node=target_node)
+        except ValueError as e:
+            message += str(e)
+            print(message)
         addToDoc(document,text=message,addparagraph=True)
         document.add_page_break()
 
