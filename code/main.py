@@ -16,7 +16,7 @@ def addToDoc(document,task="",text="",tmpFile="",addparagraph=False,addFigure=Fa
         p = document.add_paragraph()
         p.add_run(text).bold = True
     if addFigure:
-        document.add_heading(task + " graph",level=1)
+        document.add_heading(task,level=1)
         document.add_picture(tmpFile)
 
 def generateGraph(G,pos,tmpFile,document,task,answer='',mainIllustration=False,wouldLikeToViewGraphs=True,node_size=1000,x=3,y=3): #genereate all kinds of graphs
@@ -32,19 +32,26 @@ def generateGraph(G,pos,tmpFile,document,task,answer='',mainIllustration=False,w
         #add image to docx file
         plt.savefig(tmpFile)
         # add figure to document
+        if answer != '':
+            task = answer
         addToDoc(document,task=task,tmpFile=tmpFile,addFigure=True)
     elif not mainIllustration and task.startswith("task 2"): #task 2 graphs
-        if answer.startswith("answer graph question 3"):
+        if answer.startswith("DAG: linearized in topological order"):
             nx.draw(G,pos=pos,node_size=700,with_labels=True,width=3,connectionstyle='arc3, rad=0.5') #connectionstyle allows for the directed edges to be curved for viewing purposes
         else:
             nx.draw_networkx(G,node_size=node_size,width=3)
         plt.margins(0.2)
         plt.savefig(tmpFile)
+        if answer != '':
+            task = answer
         addToDoc(document,task=task,tmpFile=tmpFile,addFigure=True)
     elif not mainIllustration and task.startswith("task 3"): #task 3 graphs
-        if answer.startswith("answer graph question 2"):
-            nx.draw(G,pos=pos,node_size=700,with_labels=True,width=3)
-        elif answer.startswith("answer graph question 1"):
+        if answer.startswith("Kruskal's algorithm: mst graph"):
+            edges = G.edges()
+            colors = [G[u][v]['color'] for u,v in edges]
+            nx.draw(G, pos, edge_color=colors, width=2,with_labels=True)
+            nx.draw_networkx_edge_labels(G,pos=pos,edge_labels=nx.get_edge_attributes(G, 'weight'))
+        elif answer.startswith("Dijkstra’s algorithm: spt graph"):
             edges = G.edges()
             colors = [G[u][v]['color'] for u,v in edges] #get the color for each edge
             #weights = [G[u][v]['weight'] for u,v in edges]
@@ -52,6 +59,8 @@ def generateGraph(G,pos,tmpFile,document,task,answer='',mainIllustration=False,w
             nx.draw_networkx_edge_labels(G,pos=pos,edge_labels=nx.get_edge_attributes(G, 'weight')) # assign the weights to each edge
         plt.margins(0.2)
         plt.savefig(tmpFile)
+        if answer != '':
+            task = answer
         addToDoc(document,task=task,tmpFile=tmpFile,addFigure=True)
     else: # compare 
         nx.draw(G,pos=pos,with_labels=True,node_color="green",node_size=node_size,font_color="white",font_size=10,font_family="Times New Roman", font_weight="bold",width=2,edge_color="black")
@@ -62,6 +71,8 @@ def generateGraph(G,pos,tmpFile,document,task,answer='',mainIllustration=False,w
         #add image to docx file
         plt.savefig(tmpFile)
         # add figure to document
+        if answer != '':
+            task = answer
         addToDoc(document,task=task,tmpFile=tmpFile,addFigure=True)
 
     if wouldLikeToViewGraphs: # if the user wants to compare the figures
@@ -76,57 +87,50 @@ def generateGraph(G,pos,tmpFile,document,task,answer='',mainIllustration=False,w
         plt.close()
 
 #-----------REVISE : was used to draw graphs side by side, but this was determined to not be a valid approach for this task.-------------
-# def generateGraphSideBySideForComparison(G_dfs,G_bfs,pos,tmpFile,document,task,pressAnyKey,wouldLikeToViewGraphs=True):
-#     #dfs
-#     tmpFile_dfs = "dfs" + tmpFile
-#     nx.draw(G_dfs,pos=pos,with_labels=True,node_color="green",node_size=400,font_color="white",font_size=20,font_family="Times New Roman", font_weight="bold",width=3,edge_color="black")
-#     plt.margins(0.2)
-#     #save to figure
-#     figure = plt.gcf()
-#     figure.set_size_inches(2.5,2.5)
-#     #add image to docx file
-#     plt.savefig(tmpFile_dfs)
-#     # add figure to document
-#     addToDoc(document,task=task,tmpFile=tmpFile_dfs,addFigure=True)
-#     plt.clf()
-#     plt.close()
+def generateGraphSideBySideForComparison(document,G1,G2,pos,task,tmpFile,operation='',answer='',operation2='',wouldLikeToViewGraphs=True):
+    image1 = ""
+    image2 = ""
+    if operation.startswith("compare spt and mst"):
+        image1 = "spt" + tmpFile
+        edges = G1.edges()
+        colors = [G1[u][v]['color'] for u,v in edges]
+        nx.draw(G1, pos, edge_color=colors, width=2,with_labels=True)
+        nx.draw_networkx_edge_labels(G1,pos=pos,edge_labels=nx.get_edge_attributes(G1, 'weight'))
+        plt.savefig(image1)
+    
+        image2 = "mst" + tmpFile
+        edges = G2.edges()
+        colors = [G2[u][v]['color'] for u,v in edges] #get the color for each edge
+        #weights = [G[u][v]['weight'] for u,v in edges]
+        nx.draw(G2, pos, edge_color=colors, width=2,with_labels=True) #assign the correct colors to each of the edges (regular paths will be black, spt paths will be red)
+        nx.draw_networkx_edge_labels(G2,pos=pos,edge_labels=nx.get_edge_attributes(G2, 'weight')) # assign the weights to each edge
+        plt.savefig(image2)
 
-#     #bfs
-#     tmpFile_bfs = "bfs" + tmpFile
-#     nx.draw(G_bfs,pos=pos,with_labels=True,node_color="green",node_size=400,font_color="white",font_size=20,font_family="Times New Roman", font_weight="bold",width=3,edge_color="black")
-#     plt.margins(0.2)
-#     #save to figure
-#     figure = plt.gcf()
-#     figure.set_size_inches(2.5,2.5)
-#     #add image to docx file
-#     plt.savefig(tmpFile_bfs)
-#     # add figure to document
-#     addToDoc(document,task=task,tmpFile=tmpFile_bfs,addFigure=True)
-#     plt.clf()
-#     plt.close()
-
-
-#     if wouldLikeToViewGraphs:
-#         # Load the images
-#         plt.clf()
-#         plt.close()
-#         image1 = plt.imread(tmpFile_dfs)
-#         image2 = plt.imread(tmpFile_bfs)
-
-#         # Create a figure and axes
-#         fig, axes = plt.subplots(1, 2)
-
-#         # Plot the images
-#         axes[0].imshow(image1)
-#         axes[1].imshow(image2)
-
-#         # Show the figure
-#         plt.show(block=False) # display graph
-#         # inform user to press any key to move on
-#         #print(pressAnyKey)
-#         input("\n---Press Enter to continue---")
-#         plt.clf()
-#         plt.close()
+    if wouldLikeToViewGraphs:
+        # Load the images
+        plt.clf()
+        plt.close()
+        image1 = plt.imread(image1)
+        image2 = plt.imread(image2)
+        # Create a figure and axes
+        fig, axes = plt.subplots(1, 2)
+        #plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
+        # Plot the images
+        axes[0].imshow(image1)
+        axes[1].imshow(image2)
+        tmpFile = "sideByside.png"
+        plt.savefig(tmpFile)
+        # add figure to document
+        if answer != '':
+            task = answer
+        addToDoc(document,task=task,tmpFile=tmpFile,addFigure=True)
+        # Show the figure
+        plt.show(block=False) # display graph
+        # inform user to press any key to move on
+        #print(pressAnyKey)
+        input("\n---Press Enter to continue---")
+        plt.clf()
+        plt.close()
     
 
 
@@ -200,7 +204,67 @@ def createDAG(G):
         pos[node_data_stuff[0]] = (i,5)
         i += 2.5
     return testter,pos #returns DAG and positions for the nodes
+
+def generateGraphForSPT(document,G_weighted_undirected,pos,task,answer,tmpFile,start_node,viewGraph=True,affectDocument=True):
+    path_edge_color = 'red'
+    nodes = G_weighted_undirected.nodes()
+    spt = nx.single_source_dijkstra_path(G_weighted_undirected,start_node,weight='weight')
+    #message1
+    #message1 = "Nodes: \n" + str(nodes) + "\nDijkstra's algorithm found the shortest path tree:\n"
+    for key,value in spt.items():
+        message1 = "Dijkstra's algorithm found the shortest path from " + start_node + " to " + key + ":\n"
+        message1 += str(value) + "\n"
+        message1 += "\nShortest path tree: \n"
+        G_s = G_weighted_undirected.copy()
+        
+        if len(value) == 2:
+            edges_data = G_s.get_edge_data(value[0],value[1])
+            G_s.add_edge(value[0],value[1],color=path_edge_color,weight=edges_data.get('weight'))
+
+        elif len(value) > 2:
+            for x in range(len(value)):
+                if not value[-2].__eq__(value[-3]):
+                    index = value.index(value[x+x+1])
+                    value.insert(index+1,value[x+x+1])
+            #convert to 2d
+            edges_2d_list = np.array(value).reshape((len(value))//2,2)
+            for x in range(len(edges_2d_list)):
+                edges_data = G_s.get_edge_data(edges_2d_list[x][0],edges_2d_list[x][1])
+                G_s.add_edge(edges_2d_list[x][0],edges_2d_list[x][1],color=path_edge_color,weight=edges_data.get('weight'))
+        # add question to document and generate graph
+        if affectDocument:
+            print(message1)
+            addToDoc(document,text=message1,addparagraph=True)
+            generateGraph(G_s,pos,tmpFile,document,task,answer=answer,mainIllustration=False,wouldLikeToViewGraphs=viewGraph)
+            document.add_page_break()
     
+    return G_s #graph object
+
+def generateGraphForMST(document,G_weighted_undirected,pos,task,answer,tmpFile,viewGraph=True,affectDocument=True):
+    mst = nx.minimum_spanning_tree(G_weighted_undirected,weight='weight',algorithm='kruskal')
+    all_edges = mst.edges()
+    path_edge_color = 'red'
+
+    edges_2d_list = []
+    for x in all_edges:
+        edges_2d_list.append([x[0],x[1]])
+
+    G_s = G_weighted_undirected.copy()
+
+    for x in range(len(edges_2d_list)):
+        edges_data = G_s.get_edge_data(edges_2d_list[x][0],edges_2d_list[x][1])
+        G_s.add_edge(edges_2d_list[x][0],edges_2d_list[x][1],color=path_edge_color,weight=edges_data.get('weight'))
+        message = "\nTo get to node " + str(edges_2d_list[x][1]) + ", the closest node with least weight is " + str(edges_2d_list[x][0])
+        message += "\nGraphically represented:\n"
+        if x == len(edges_2d_list) - 1:
+            message += "\n!---ALL NODES AND PATHS HAVE BEEN MADE WITH THE LEAST WEIGHT USING KRUSKAL'S ALGORITHM---!:\n"
+        if affectDocument:
+            print(message)
+            addToDoc(document,text=message,addparagraph=True)
+            generateGraph(G_s,pos,tmpFile,document,task,answer=answer,mainIllustration=False,wouldLikeToViewGraphs=viewGraph)
+            document.add_page_break()
+    
+    return G_s #graph object
 
 def task1(document):
     #current task
@@ -210,9 +274,9 @@ def task1(document):
     # move on message
     #pressAnyKey = "\n\n" + task + "graph\n\n" + "\n---PRESS ANY KEY TO MOVE ON!---\n\n"
     # questions
-    question1 = "\n\nQUESTION:\nStarting from any vertex, can DFS and BFS find all connected components of an undirected graph?\n\n"
-    question2 = "\n\nQUESTION:\nCan both BFS and DFS determine if there is a path between two given nodes?\n\n"
-    question3 = "\n\nQUESTION:\nProvided that there is a path between two vertices u and v in the graph. If started from u, do DFS and BFS always find exactly the same path to v?\n\n"
+    question1 = "\n\nQUESTION 1:\nStarting from any vertex, can DFS and BFS find all connected components of an undirected graph?\n\n"
+    question2 = "\n\nQUESTION 2:\nCan both BFS and DFS determine if there is a path between two given nodes?\n\n"
+    question3 = "\n\nQUESTION 3:\nProvided that there is a path between two vertices u and v in the graph. If started from u, do DFS and BFS always find exactly the same path to v?\n\n"
     #create graph
     G=nx.Graph()
 
@@ -272,11 +336,6 @@ def task1(document):
     # 
     print(question1)
     task = "task 1 question 1"
-    # generate undirected graph 
-    generateGraph(G_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
-    # add question to document
-    addToDoc(document,text=question1,addparagraph=True)
-    document.add_page_break()
 
     # can DFS & BFS find all components of undirected graph?
 
@@ -284,6 +343,12 @@ def task1(document):
     view,answerQuestion = viewGraphs()     
 
     if answerQuestion:
+        # generate undirected graph 
+        generateGraph(G_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
+        # add question to document
+        addToDoc(document,text=question1,addparagraph=True)
+        document.add_page_break()
+        
         for node in G_undirected.nodes():#loop over nodes
             #list for storing results for DFS & BFS
             dfs = []
@@ -368,22 +433,21 @@ def task1(document):
     # ######################### --------------- QUESTION 2 ---------------#########################  #
     # 
     print(question2)
-    #insert page break
-    document.add_page_break()
     # message = "\nTo answer this question, we will loop over all nodes, and find all possible paths, using DFS and BFS\n\n"
     # print(message)
     # addToDoc(document,text=message,addparagraph=True)
     # generate undirected graph 
     task = "task 1 question 2"
-    generateGraph(G_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
-    # add question to document
-    addToDoc(document,text=question2,addparagraph=True)
-    document.add_page_break()
     # Can both BFS and DFS determine if there is a path between two given nodes?
     #ask if the user wants to compare the graphs, or just view it later in the file
     view,answerQuestion = viewGraphs() 
 
     if answerQuestion:
+        generateGraph(G_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
+        # add question to document
+        addToDoc(document,text=question2,addparagraph=True)
+        document.add_page_break()
+
         for node in G_undirected.nodes(): #loop over nodes
             # message1
             message1 = "\n\nDFS\nStart node: " + node
@@ -450,15 +514,16 @@ def task1(document):
     print(question3)
     # generate undirected graph 
     task = "task 1 question 3"
-    generateGraph(G_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
-    # add question to document
-    addToDoc(document,text=question3,addparagraph=True)
-    document.add_page_break()
     # Provided that there is a path between two vertices u and v in the graph. If started from u, do DFS and BFS always find exactly the same path to v?
     #ask if the user wants to compare the graphs, or just view it later in the file
     view,answerQuestion = viewGraphs() 
 
     if answerQuestion:
+        generateGraph(G_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
+        # add question to document
+        addToDoc(document,text=question3,addparagraph=True)
+        document.add_page_break()
+
         #find the known connected component parts
         conn_comp_1 = conn_comp[0] #all connected nodes from spanning tree (conn_comp is a forest)
         conn_comp_2 = conn_comp[1] #all connected nodes from spanning tree (conn_comp is a forest)
@@ -601,9 +666,9 @@ def task2(document):
     # move on message
     #pressAnyKey = "\n\n" + task + "graph\n\n" + "\n---PRESS ANY KEY TO MOVE ON!---\n\n"
     # questions
-    question1 = "\n\nQUESTION:\nUse an application to find the strongly connected components of the digraph.\n\n"
-    question2 = "\n\nQUESTION:\nDraw the digraph as a 'meta graph' of its strongly connected components in the report.\n\n"
-    question3 = "\n\nQUESTION:\nRepresent the 'meta graph' as a DAG and linearize it in its topological order.\n\n"
+    question1 = "\n\nQUESTION 1:\nUse an application to find the strongly connected components of the digraph.\n\n"
+    question2 = "\n\nQUESTION 2:\nDraw the digraph as a 'meta graph' of its strongly connected components in the report.\n\n"
+    question3 = "\n\nQUESTION 3:\nRepresent the 'meta graph' as a DAG and linearize it in its topological order.\n\n"
     #create graph
     G=nx.DiGraph()
     
@@ -655,18 +720,18 @@ def task2(document):
     # 
     print(question1)
     task = "task 2 question 1"
-    # generate undirected graph 
-    generateGraph(G,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
-    # add question to document
-    addToDoc(document,text=question1,addparagraph=True)
-
-    document.add_page_break()
 
     # Use an application to find the strongly connected components of the digraph
     #ask if the user wants to compare the graphs, or just view it later in the file
     view,answerQuestion = viewGraphs()
 
     if answerQuestion:
+        # generate undirected graph 
+        generateGraph(G,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
+        # add question to document
+        addToDoc(document,text=question1,addparagraph=True)
+        document.add_page_break()
+
         #get scc's from digraph
         scc = getStronglyConnectedComponents(G)
         #message1
@@ -683,12 +748,6 @@ def task2(document):
     print(question2)
 
     task = "task 2 question 2"
-    # generate undirected graph 
-    generateGraph(G,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
-    # add question to document
-    addToDoc(document,text=question2,addparagraph=True)
-
-    document.add_page_break()
 
     # Draw the digraph as a 'meta graph' of its strongly connected components in the report
     
@@ -696,12 +755,18 @@ def task2(document):
     view,answerQuestion = viewGraphs()
 
     if answerQuestion:
+        # generate undirected graph 
+        generateGraph(G,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
+        # add question to document
+        addToDoc(document,text=question2,addparagraph=True)
+        document.add_page_break()
+
         meta_graph = createDigraphWithSCC(G)
         #message1
         message1 = "Digraph as a meta-graph of its strongly connected components"
         print(message1)
         addToDoc(document,text=message1,addparagraph=True)
-        answer = "answer graph question 2"
+        answer = "Digraph: meta graph of its SCC"
         generateGraph(meta_graph,pos,tmpFile,document,task,answer=answer,mainIllustration=False,wouldLikeToViewGraphs=True)
         document.add_page_break()
     
@@ -710,26 +775,25 @@ def task2(document):
     # 
     print(question3)
     task = "task 2 question 3"
-    # generate undirected graph 
-    generateGraph(G,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
-    # add question to document
-    addToDoc(document,text=question3,addparagraph=True)
-
-    document.add_page_break()
-
     # Represent the 'meta graph' as a DAG and linearize it in its topological order
 
     #ask if the user wants to compare the graphs, or just view it later in the file
     view,answerQuestion = viewGraphs()
 
     if answerQuestion:
+        # generate undirected graph 
+        generateGraph(G,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
+        # add question to document
+        addToDoc(document,text=question3,addparagraph=True)
+        document.add_page_break()
+
         meta_graph = createDigraphWithSCC(G)
         DAGgraph,pos = createDAG(meta_graph)
         #message1
         message1 = "Meta-graph as a DAG, linearized in its topological order"
         print(message1)
         addToDoc(document,text=message1,addparagraph=True)
-        answer = "answer graph question 3"
+        answer = "DAG: linearized in topological order"
         generateGraph(DAGgraph,pos,tmpFile,document,task,answer=answer,mainIllustration=False,wouldLikeToViewGraphs=True)
         document.add_page_break() 
 
@@ -742,11 +806,11 @@ def task3(document):
     # move on message
     #pressAnyKey = "\n\n" + task + "graph\n\n" + "\n---PRESS ANY KEY TO MOVE ON!---\n\n"
     # questions
-    question1 = "\n\nQUESTION:\nWrite an application that applies Dijkstra’s algorithm to produce the shortest path tree for" + \
+    question1 = "\n\nQUESTION 1:\nWrite an application that applies Dijkstra’s algorithm to produce the shortest path tree for" + \
                 " a weighted graph with a given starting node. Test and verify your program with the given graph starting with node A\n\n"
-    question2 = "\n\nQUESTION:\nWrite a program that produces a minimum spanning tree for a connected weighted graph.\n\n"
-    question3 = "\n\nQUESTION:\nAre a shortest path tree and a minimum spanning tree usually the same?\n\n"
-    question4 = "\n\nQUESTION:\nIf the graph has an edge with a negative weight, can you apply Dijkstra's algorithm to find a shortest path tree?\n\n"
+    question2 = "\n\nQUESTION 2:\nWrite a program that produces a minimum spanning tree for a connected weighted graph.\n\n"
+    question3 = "\n\nQUESTION 3:\nAre a shortest path tree and a minimum spanning tree usually the same?\n\n"
+    question4 = "\n\nQUESTION 4:\nIf the graph has an edge with a negative weight, can you apply Dijkstra's algorithm to find a shortest path tree?\n\n"
 
 
     G_weighted_undirected = nx.Graph()
@@ -789,12 +853,6 @@ def task3(document):
     # 
     print(question1)
     task = "task 3 question 1"
-    # generate undirected graph 
-    generateGraph(G_weighted_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
-    # add question to document
-    addToDoc(document,text=question1,addparagraph=True) 
-    document.add_page_break()
-
     # Write an application that applies Dijkstra’s algorithm to produce the shortest path 
     #tree for a weighted graph with a given starting node. Test and verify your program 
     #with the given graph starting with node A
@@ -802,76 +860,55 @@ def task3(document):
     view,answerQuestion = viewGraphs()     
 
     if answerQuestion:
-        answer = "answer graph question 1"
-        start_node = "A"
-        path_edge_color = 'red'
-        nodes = G_weighted_undirected.nodes()
-        spt = nx.single_source_dijkstra_path(G_weighted_undirected,start_node,weight='weight')
-        #message1
-        #message1 = "Nodes: \n" + str(nodes) + "\nDijkstra's algorithm found the shortest path tree:\n"
-        for key,value in spt.items():
-            message1 = "Dijkstra's algorithm found the shortest path from " + start_node + " to " + key + ":\n"
-            message1 += str(value) + "\n"
-            message1 += "\nShortest path tree: \n"
-            G_s = G_weighted_undirected.copy()
-            
-            if len(value) == 2:
-                edges_data = G_s.get_edge_data(value[0],value[1])
-                G_s.add_edge(value[0],value[1],color=path_edge_color,weight=edges_data.get('weight'))
+        # generate undirected graph 
+        generateGraph(G_weighted_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
+        # add question to document
+        addToDoc(document,text=question1,addparagraph=True) 
+        document.add_page_break()
 
-            elif len(value) > 2:
-                for x in range(len(value)):
-                    if not value[-2].__eq__(value[-3]):
-                        index = value.index(value[x+x+1])
-                        value.insert(index+1,value[x+x+1])
-                #convert to 2d
-                edges_2d_list = np.array(value).reshape((len(value))//2,2)
-                for x in range(len(edges_2d_list)):
-                    edges_data = G_s.get_edge_data(edges_2d_list[x][0],edges_2d_list[x][1])
-                    G_s.add_edge(edges_2d_list[x][0],edges_2d_list[x][1],color=path_edge_color,weight=edges_data.get('weight'))
-            # add question to document and generate graph
-            print(message1)
-            addToDoc(document,text=message1,addparagraph=True)
-            generateGraph(G_s,pos,tmpFile,document,task,answer=answer,mainIllustration=False,wouldLikeToViewGraphs=True)
-            document.add_page_break()
+        answer = "Dijkstra’s algorithm: spt graph"
+        start_node = "A"
+        generateGraphForSPT(document,G_weighted_undirected,pos,task,answer,tmpFile,start_node)
+        
         
     #
     # ######################### --------------- QUESTION 2 ---------------#########################  #
     # 
     print(question2)
     task = "task 3 question 2"
-    # generate undirected graph 
-    generateGraph(G_weighted_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
-    # add question to document
-    addToDoc(document,text=question2,addparagraph=True)
-    document.add_page_break()
-
+    
     # Write a program that produces a minimum spanning tree for a connected weighted graph
     
     #ask if the user wants to compare the graphs, or just view it later in the file
     view,answerQuestion = viewGraphs()     
 
     if answerQuestion:
-        answer = "answer graph question 2"
-        mst = nx.minimum_spanning_tree(G_weighted_undirected,weight='weight',algorithm='kruskal')
-        edges = mst.edges()
-        #message1 
-        message1 = "Minimum Spanning Tree using Kruskal's algorithm\n" + "Edges: \n" + str(edges) + "\nGraph: "
-        print(message1)
-        addToDoc(document,text=message1,addparagraph=True)
-        generateGraph(mst,pos,tmpFile,document,task,answer=answer,mainIllustration=False,wouldLikeToViewGraphs=True)
+        # generate undirected graph 
+        generateGraph(G_weighted_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
+        # add question to document
+        addToDoc(document,text=question2,addparagraph=True)
         document.add_page_break()
+
+        answer = "Kruskal's algorithm: mst graph"
+        generateGraphForMST(document,G_weighted_undirected,pos,task,answer,tmpFile)
+                    
+        #REVISE: old method....
+        # answer = "mst graph"
+        # mst = nx.minimum_spanning_tree(G_weighted_undirected,weight='weight',algorithm='kruskal')
+        # mst = nx.minimum
+        # edges = mst.edges()
+        # #message1 
+        # message1 = "Minimum Spanning Tree using Kruskal's algorithm\n" + "Edges: \n" + str(edges) + "\nGraph: "
+        # print(message1)
+        # addToDoc(document,text=message1,addparagraph=True)
+        # generateGraph(mst,pos,tmpFile,document,task,answer=answer,mainIllustration=False,wouldLikeToViewGraphs=True)
+        # document.add_page_break()
 
     #
     # ######################### --------------- QUESTION 3 ---------------#########################  #
     # 
     print(question3)
     task = "task 3 question 3"
-    # generate undirected graph 
-    generateGraph(G_weighted_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
-    # add question to document
-    addToDoc(document,text=question3,addparagraph=True)
-    document.add_page_break()
 
     # Are a shortest path tree and a minimum spanning tree usually the same?
 
@@ -879,18 +916,29 @@ def task3(document):
     view,answerQuestion = viewGraphs()
 
     if answerQuestion:
-        print("Not implemented")
+        # generate undirected graph 
+        generateGraph(G_weighted_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
+        # add question to document
+        addToDoc(document,text=question3,addparagraph=True)
+        document.add_page_break()
+
+        operation = "compare spt and mst"
+        answer = "Dijkstra’s algorithm: spt graph"
+        start_node = "A"
+        G_spt = generateGraphForSPT(document,G_weighted_undirected,pos,task,answer,tmpFile,start_node,viewGraph=False,affectDocument=False)
+        answer = "Kruskal's algorithm: mst graph"
+        G_mst = generateGraphForMST(document,G_weighted_undirected,pos,task,answer,tmpFile,viewGraph=False,affectDocument=False)
+        answer = "spt vs mst"
+        generateGraphSideBySideForComparison(document,G_spt,G_mst,pos,task,tmpFile,operation,answer=answer,wouldLikeToViewGraphs=True)
+        message = "\nNo: \nSPT identifies a path to reach a destination using the shortest paths.\nMST finds the least weighted path connecting each node with no destination"
+        addToDoc(document,text=message,addparagraph=True)
+        document.add_page_break()
 
     #
     # ######################### --------------- QUESTION 4 ---------------#########################  #
     # 
     print(question4)
-    task = "task 3 question 3"
-    # generate undirected graph 
-    generateGraph(G_weighted_undirected,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
-    # add question to document
-    addToDoc(document,text=question4,addparagraph=True)
-    document.add_page_break()
+    task = "task 3 question 4"
 
     # If the graph has an edge with a negative weight, can you apply Dijkstra's algorithm to find a shortest path tree?
 
@@ -898,8 +946,26 @@ def task3(document):
     view,answerQuestion = viewGraphs()
     
     if answerQuestion:
-        G_copy = G_weighted_undirected.copy()
-        G_copy.add_edge("A","B",weight=-22,color='black')
+        #add negative edge
+        G_error_prone = G_weighted_undirected.copy()
+        G_error_prone.add_edge("G","I",weight=-21,color='black')
+        # generate undirected graph 
+        generateGraph(G_error_prone,pos,tmpFile,document,task,mainIllustration=True,wouldLikeToViewGraphs=True)
+        # add question to document
+        addToDoc(document,text=question4,addparagraph=True)
+        document.add_page_break()
+
+        start_node = "A"
+        message ="If the graph has an edge with a negative weight, Dijkstra's algorithm cannot be applied to find spt\nValueError:\n"
+        try:
+            spt = nx.single_source_dijkstra_path(G_error_prone,start_node,weight='weight')
+            nx.draw(spt,pos=pos,node_size=700,with_labels=True,width=3)
+        except ValueError as e:
+            # print(e.with_traceback())
+            message += str(e) #error message in the document.. without traceback
+        print(message)
+        addToDoc(document,text=message,addparagraph=True)
+        document.add_page_break()
 
     
     
@@ -967,7 +1033,7 @@ def main():
                 i += 1
         # remove graph.png files
         for file in os.listdir("."):
-            if file.endswith("graph.png"):
+            if file.endswith("graph.png") or file.endswith("mstgraph.png") or file.endswith("sideByside.png") or file.endswith("sptgraph.png"):
                 os.remove(file)
         if i>1:
             print("\n\nYou had a similar file name opened, so another is going to be created with (" + str(i-1)+") in the filename.")
