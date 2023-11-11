@@ -222,14 +222,40 @@ pos={ # positions for nodes
 
 # print(message)
 
-#mst = nx.minimum_spanning_tree(G_weighted_undirected,weight='weight',algorithm="kruskal")
+G_error_prone = G_weighted_undirected.copy()
 
-#mstPath = nx.minimum_spanning_edges(G_weighted_undirected, algorithm="kruskal",)
+G_error_prone.add_edge("G","I",weight=-21,color='black')
 
-#mstPath = nx.minimum_branching(G_weighted_undirected,attr='weight')
+start_node = "A"
+
+try:
+    spt = nx.single_source_dijkstra_path(G_error_prone,start_node,weight='weight')
+    nx.draw(spt,pos=pos,node_size=700,with_labels=True,width=3)
+except ValueError as e:
+    # print(e.with_traceback())
+    message = e
+    print()
+
+print(str(message))
+exit()
+
+mst = nx.minimum_spanning_tree(G_weighted_undirected,weight='weight',algorithm="kruskal")
+
+mstPath = nx.minimum_spanning_edges(G_weighted_undirected, algorithm="kruskal",)
+
+# mstPath = nx.minimum_branching(G_weighted_undirected,attr='weight')
 # edgelist = list(mstPath)
 
-# nodes = G_weighted_undirected.nodes()
+
+fig, ax = plt.subplots()
+
+# Decrease the margins
+plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
+
+plt.show()
+
+
+exit()
 
 # start_node = "A"
 
@@ -237,39 +263,93 @@ pos={ # positions for nodes
 
 # G_copy = G_weighted_undirected.copy()
 
-# nodes = G_copy.nodes
+test_list = mst.edges()
+path_edge_color = 'red'
 
-# test_map = {'weight': 22, 'color': 'g'}
+real_list = []
+for x in test_list:
+    real_list.append([x[0],x[1]])
 
-# print(test_map.get('weight'))
+print(real_list)
 
-# path_edge_color = 'red'
+G_s = G_weighted_undirected.copy()
 
-# for key,value in spt.items():
-#     do_changes = False
-#     G_s = G_weighted_undirected.copy()
+for x in range(len(real_list)):
+    edges_data = G_s.get_edge_data(real_list[x][0],real_list[x][1])
+    G_s.add_edge(real_list[x][0],real_list[x][1],color=path_edge_color,weight=edges_data.get('weight'))
+    message = "\nTo get to node " + str(real_list[x][1]) + ", the closest node with least weight is " + str(real_list[x][0])
+    message += "\nGraphically represented:\n"
+    if x == len(real_list) - 1:
+        message += "\n!---ALL NODES AND PATHS HAVE BEEN MADE WITH THE LEAST WEIGHT USING KRUSKAL'S ALGORITHM---!:\n"
+    print(message)
+# for x in range(len(real_list)):
+    edges = G_s.edges()
+    colors = [G_s[u][v]['color'] for u,v in edges]
+    weights = [G_s[u][v]['weight'] for u,v in edges]
+    nx.draw(G_s, pos, edge_color=colors, width=2,with_labels=True)
+    nx.draw_networkx_edge_labels(G_s,pos=pos,edge_labels=nx.get_edge_attributes(G_s, 'weight'))
+    plt.show()
+
+exit()
+
+for key,value in spt.items():
+    do_changes = False
+    G_s = G_weighted_undirected.copy()
     
-#     if len(value) == 2:
-#         edges_data = G_s.get_edge_data(value[0],value[1])
-#         G_s.add_edge(value[0],value[1],color=path_edge_color,weight=edges_data.get('weight'))
+    if len(value) == 2:
+        edges_data = G_s.get_edge_data(value[0],value[1])
+        G_s.add_edge(value[0],value[1],color=path_edge_color,weight=edges_data.get('weight'))
 
-#     elif len(value) > 2:
-#         for x in range(len(value)):
-#             if not value[-2].__eq__(value[-3]):
-#                 index = value.index(value[x+x+1])
-#                 value.insert(index+1,value[x+x+1])
-#         #convert to 2d
-#         dfs_to_2d = np.array(value).reshape((len(value))//2,2)
-#         for x in range(len(dfs_to_2d)):
-#             edges_data = G_s.get_edge_data(dfs_to_2d[x][0],dfs_to_2d[x][1])
-#             G_s.add_edge(dfs_to_2d[x][0],dfs_to_2d[x][1],color=path_edge_color,weight=edges_data.get('weight'))
+    elif len(value) > 2:
+        for x in range(len(value)):
+            if not value[-2].__eq__(value[-3]):
+                index = value.index(value[x+x+1])
+                value.insert(index+1,value[x+x+1])
+        #convert to 2d
+        dfs_to_2d = np.array(value).reshape((len(value))//2,2)
+        for x in range(len(dfs_to_2d)):
+            edges_data = G_s.get_edge_data(dfs_to_2d[x][0],dfs_to_2d[x][1])
+            G_s.add_edge(dfs_to_2d[x][0],dfs_to_2d[x][1],color=path_edge_color,weight=edges_data.get('weight'))
           
-#     edges = G_s.edges()
-#     colors = [G_s[u][v]['color'] for u,v in edges]
-#     weights = [G_s[u][v]['weight'] for u,v in edges]
-#     nx.draw(G_s, pos, edge_color=colors, width=2,with_labels=True)
-#     nx.draw_networkx_edge_labels(G_s,pos=pos,edge_labels=nx.get_edge_attributes(G_s, 'weight'))
-#     plt.show()
+    edges = G_s.edges()
+    colors = [G_s[u][v]['color'] for u,v in edges]
+    weights = [G_s[u][v]['weight'] for u,v in edges]
+    nx.draw(G_s, pos, edge_color=colors, width=2,with_labels=True)
+    nx.draw_networkx_edge_labels(G_s,pos=pos,edge_labels=nx.get_edge_attributes(G_s, 'weight'))
+    plt.show()
+
+exit()
+
+
+
+
+path_edge_color = 'red'
+
+for key,value in spt.items():
+    do_changes = False
+    G_s = G_weighted_undirected.copy()
+    
+    if len(value) == 2:
+        edges_data = G_s.get_edge_data(value[0],value[1])
+        G_s.add_edge(value[0],value[1],color=path_edge_color,weight=edges_data.get('weight'))
+
+    elif len(value) > 2:
+        for x in range(len(value)):
+            if not value[-2].__eq__(value[-3]):
+                index = value.index(value[x+x+1])
+                value.insert(index+1,value[x+x+1])
+        #convert to 2d
+        dfs_to_2d = np.array(value).reshape((len(value))//2,2)
+        for x in range(len(dfs_to_2d)):
+            edges_data = G_s.get_edge_data(dfs_to_2d[x][0],dfs_to_2d[x][1])
+            G_s.add_edge(dfs_to_2d[x][0],dfs_to_2d[x][1],color=path_edge_color,weight=edges_data.get('weight'))
+          
+    edges = G_s.edges()
+    colors = [G_s[u][v]['color'] for u,v in edges]
+    weights = [G_s[u][v]['weight'] for u,v in edges]
+    nx.draw(G_s, pos, edge_color=colors, width=2,with_labels=True)
+    nx.draw_networkx_edge_labels(G_s,pos=pos,edge_labels=nx.get_edge_attributes(G_s, 'weight'))
+    plt.show()
 #     # elif len(value) % 2 ==0:
 
 
